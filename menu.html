@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+<title>Navigation</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    .menu-page {
+        padding: 18px 16px 110px;
+    }
+    .menu-card {
+        background: rgba(10, 18, 34, 0.94);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        border-radius: 20px;
+        padding: 16px;
+    }
+    .menu-card h2 {
+        margin: 0 0 10px;
+        color: #f8fafc;
+    }
+    .menu-card p {
+        margin: 0;
+        color: #94a3b8;
+        line-height: 1.5;
+        font-size: 13px;
+    }
+</style>
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="topbar">
+    <button onclick="window.location.href='home.html'">←</button>
+    <div class="title">Navigation</div>
+    <div style="width: 30px;"></div>
+</div>
+
+<div class="page menu-page">
+    <div class="menu-card">
+        <h2>Quick navigation</h2>
+        <button class="primary-btn" style="margin-top:12px;" onclick="window.location.href='grow.html'">Open FreshLink Grow</button>
+        <button class="secondary-btn" style="margin-top:12px;" onclick="window.location.href='grow-upload.html'">Upload Grow Video</button>
+        <button class="primary-btn" style="margin-top:12px;" onclick="window.location.href='settings.html?upgrade=1'">Manage Subscription</button>
+        <button class="secondary-btn" style="margin-top:12px;" onclick="window.location.href='compare-plans.html'">Compare Plans</button>
+        <button class="secondary-btn" style="margin-top:12px;" onclick="window.location.href='world-class-suite.html'">Open World-Class Suite</button>
+        <button class="primary-btn" style="margin-top:12px;" onclick="window.location.href='ai-farm.html'">Open AI Farm Assistant</button>
+        <button class="secondary-btn" style="margin-top:12px;" onclick="window.location.href='farming-calendar.html'">Open Farming Calendar</button>
+    </div>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button onclick="window.location.href='search.html'">Search</button>
+    <button onclick="window.location.href='profile.html'">Profile</button>
+    <button class="active" onclick="window.location.href='menu.html'">More</button>
+</div>
+</body>
+</html>

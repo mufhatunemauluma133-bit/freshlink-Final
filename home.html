@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+
+<title>FreshLink Home</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<style>
+    #map {
+        width: 100%;
+        height: 400px;
+        border-radius: 20px;
+        margin: 16px 0;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    .location-info {
+        text-align: center;
+        padding: 12px;
+        font-size: 13px;
+        color: #94a3b8;
+    }
+    .location-btn {
+        padding: 12px 16px;
+        background: linear-gradient(135deg, #22c55e 0%, #14b8a6 100%);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        cursor: pointer;
+        font-weight: 700;
+        margin-bottom: 12px;
+        width: 100%;
+    }
+
+    .profile-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.04);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.06);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .cart-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.06);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.08);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .cart-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        min-width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        background: #22c55e;
+        color: #0f172a;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        padding: 0 4px;
+    }
+
+    .cart-preview {
+        margin: 18px 0 0;
+        padding: 18px 18px 16px;
+        border-radius: 20px;
+        background: #081220;
+        border: 1px solid rgba(148,163,184,0.12);
+    }
+
+    .cart-preview h3 {
+        margin: 0 0 10px;
+        color: #f8fafc;
+        font-size: 16px;
+    }
+
+    .cart-preview ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .cart-preview li {
+        display: flex;
+        justify-content: space-between;
+        color: #cbd5e1;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(148,163,184,0.08);
+    }
+
+    .cart-preview li:last-child {
+        border-bottom: none;
+    }
+
+    .cart-preview .cart-total {
+        margin-top: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 700;
+        color: #f8fafc;
+    }
+
+    .cart-preview .checkout-btn {
+        margin-top: 14px;
+        width: 100%;
+        padding: 12px 0;
+        border-radius: 14px;
+        border: none;
+        background: linear-gradient(135deg, #22c55e 0%, #14b8a6 100%);
+        color: #fff;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .grow-highlight {
+        margin-top: 14px;
+        padding: 14px;
+        border-radius: 20px;
+        background: linear-gradient(145deg, rgba(34, 197, 94, 0.12), rgba(56, 189, 248, 0.12));
+        border: 1px solid rgba(34, 197, 94, 0.16);
+    }
+
+    .grow-highlight strong {
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    @media (max-width: 700px) {
+        #map {
+            height: 300px;
+        }
+
+        .topbar .title {
+            font-size: 16px;
+        }
+
+        .profile-icon,
+        .cart-icon {
+            width: 34px;
+            height: 34px;
+        }
+    }
+
+    @media (min-width: 960px) {
+        .page {
+            max-width: 980px;
+        }
+
+        .card-row {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+</style>
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="page">
+    <div class="topbar">
+        <button onclick="window.location.href='menu.html'">☰</button>
+        <div class="title">FreshLink</div>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <button id="marketBtn" class="cart-icon" title="Live market prices">📈</button>
+            <button id="cartBtn" class="cart-icon" title="View cart">🛒<span id="cartBadge" class="cart-badge" style="display:none;">0</span></button>
+            <button id="myProfileBtn" class="profile-icon" title="My profile">👤</button>
+        </div>
+    </div>
+
+    <div class="hero">
+        <h1>Discover fresh farm produce</h1>
+        <p>Find fresh food from nearby farms and buy directly from people you can trust.</p>
+        <button class="location-btn" onclick="findNearbyFarms()">📍 Find Nearby Farms</button>
+        <div class="grow-highlight">
+            <strong>FreshLink Grow is live</strong>
+            <div class="location-info" style="padding:0; text-align:left;">Watch short agriculture videos, learn from farmers, and jump straight into attached marketplace listings.</div>
+            <button class="secondary-btn" style="margin-top:12px;" onclick="window.location.href='grow.html'">Open FreshLink Grow</button>
+        </div>
+        <div id="homeCartPreview" class="cart-preview" style="display:none;">
+            <h3>Your cart</h3>
+            <ul id="homeCartList"></ul>
+            <div class="cart-total">
+                <span>Total due</span>
+                <span id="homeCartTotal">R0.00</span>
+            </div>
+            <button class="checkout-btn" onclick="window.location.href='payment.html'">Go to Checkout</button>
+        </div>
+        <div id="mapContainer" style="display: none;">
+            <div id="map"></div>
+            <div class="location-info" id="locationInfo">Loading your location...</div>
+            <div id="nearbyProducts" class="card-row"></div>
+        </div>
+    </div>
+
+    <div class="story-row">
+        <a class="story" href="feed.html?category=dairy">
+            <div class="story-avatar"><img src="https://images.unsplash.com/photo-1563636619-e9143da7973b?auto=format&fit=crop&w=200&q=80" alt="Dairy farm"></div>
+            <div class="story-label">Dairy Farms</div>
+        </a>
+        <a class="story" href="feed.html?category=berries">
+            <div class="story-avatar"><img src="https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=crop&w=200&q=80" alt="Berry farm"></div>
+            <div class="story-label">Berries</div>
+        </a>
+        <a class="story" href="feed.html?category=vegetables">
+            <div class="story-avatar"><img src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=200&q=80" alt="Vegetable farm"></div>
+            <div class="story-label">Vegetables</div>
+        </a>
+        <a class="story" href="feed.html?category=honey">
+            <div class="story-avatar"><img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=200&q=80" alt="Honey farm"></div>
+            <div class="story-label">Honey</div>
+        </a>
+        <a class="story" href="feed.html?category=animals">
+            <div class="story-avatar"><img src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?auto=format&fit=crop&w=200&q=80" alt="Cattle farm"></div>
+            <div class="story-label">Animals</div>
+        </a>
+        <a class="story" href="feed.html?category=grains">
+            <div class="story-avatar"><img src="https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=200&q=80" alt="Grain farm"></div>
+            <div class="story-label">Grains</div>
+        </a>
+    </div>
+
+    <section class="ai-reco" id="aiRecoSection">
+        <h3>Picked for you today</h3>
+        <p>Helpful suggestions based on season, demand, and what people are buying right now.</p>
+        <div class="ai-reco-list" id="aiRecoList"></div>
+        <button class="primary-btn" style="margin-top:12px;" onclick="window.location.href='ai-farm.html'">Open Farm Assistant</button>
+        <button class="secondary-btn" style="margin-top:12px;" onclick="window.location.href='grow.html'">Watch FreshLink Grow</button>
+    </section>
+
+    <div class="card-row" id="featuredProducts"></div>
+</div>
+
+<div class="navbar">
+    <button class="active" onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button onclick="window.location.href='search.html'">Search</button>
+    <button onclick="window.location.href='profile.html'">Profile</button>
+    <button onclick="window.location.href='menu.html'">More</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script type="module">
+import { supabase } from "./supabase.js";
+import { resolvePostImageUrl, escapeHtmlText } from "./image-matching.js";
+
+// Setup visible profile button (top-right) to open user's farm profile
+async function setupProfileButton() {
+    const btn = document.getElementById('myProfileBtn');
+    if (!btn) return;
+    const { data } = await supabase.auth.getSession();
+    const user = data?.session?.user;
+    if (!user) {
+        btn.style.display = 'none';
+        return;
+    }
+
+    // Try to fetch profile details
+    const { data: profile } = await supabase.from('profiles').select('farm_name,avatar_url,banner_url,location,bio').eq('id', user.id).single();
+    const farmName = profile?.farm_name || user.email.split('@')[0];
+    const avatarUrl = profile?.avatar_url || null;
+
+    if (avatarUrl) {
+        btn.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = avatarUrl;
+        img.alt = farmName;
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '50%';
+        btn.appendChild(img);
+    } else {
+        btn.textContent = farmName.charAt(0).toUpperCase();
+    }
+
+    btn.addEventListener('click', () => {
+        const url = `profile.html?farm=${encodeURIComponent(farmName)}&email=${encodeURIComponent(user.email)}&location=${encodeURIComponent(profile?.location||'')}&banner=${encodeURIComponent(profile?.banner_url||'')}&avatar=${encodeURIComponent(profile?.avatar_url||'')}&bio=${encodeURIComponent(profile?.bio||'')}`;
+        window.location.href = url;
+    });
+}
+
+function getCartItems() {
+    return JSON.parse(localStorage.getItem('freshlink_cart') || '[]');
+}
+
+function formatCurrency(amount) {
+    return `R${Number(amount).toFixed(2)}`;
+}
+
+function updateCartBadge() {
+    const cart = getCartItems();
+    const badge = document.getElementById('cartBadge');
+    const btn = document.getElementById('cartBtn');
+    if (!badge || !btn) return;
+    if (!cart.length) {
+        badge.style.display = 'none';
+    } else {
+        badge.style.display = 'flex';
+        badge.textContent = cart.length;
+    }
+}
+
+function renderHomeCartPreview() {
+    const cart = getCartItems();
+    const preview = document.getElementById('homeCartPreview');
+    const list = document.getElementById('homeCartList');
+    const totalLabel = document.getElementById('homeCartTotal');
+    if (!preview || !list || !totalLabel) return;
+
+    if (!cart.length) {
+        preview.style.display = 'none';
+        return;
+    }
+
+    const grouped = cart.reduce((acc, item) => {
+        const key = item.farm || item.contactEmail || 'Other farm';
+        if (!acc[key]) acc[key] = { farm: key, subtotal: 0, count: 0 };
+        acc[key].subtotal += Number(item.price || 0);
+        acc[key].count += 1;
+        return acc;
+    }, {});
+
+    list.innerHTML = Object.values(grouped).map(group => `
+        <li>
+            <span>${group.farm} (${group.count})</span>
+            <span>${formatCurrency(group.subtotal)}</span>
+        </li>
+    `).join('');
+
+    const total = cart.reduce((sum, item) => sum + Number(item.price || 0), 0);
+    totalLabel.textContent = formatCurrency(total);
+    preview.style.display = 'block';
+}
+
+function setupCartButton() {
+    const btn = document.getElementById('cartBtn');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+        window.location.href = 'payment.html';
+    });
+}
+
+function isPostVisible(post) {
+    if (!post?.created_at) return true;
+
+    const createdAt = new Date(post.created_at);
+    if (Number.isNaN(createdAt.getTime())) return true;
+
+    const expiresAt = new Date(createdAt.getTime() + 7 * 24 * 60 * 60 * 1000);
+    return expiresAt > new Date();
+}
+
+async function renderFeaturedPosts() {
+    const container = document.getElementById('featuredProducts');
+    if (!container) return;
+
+    try {
+        const { data, error } = await supabase
+            .from('posts')
+            .select('title,image_url,price,amount,unit_price,location,contact,email,description,farm,category,video_url,created_at')
+            .order('created_at', { ascending: false })
+            .limit(6);
+
+        if (error) throw error;
+
+        const visiblePosts = (data || []).filter(isPostVisible);
+        if (!visiblePosts.length) {
+            container.innerHTML = '<div class="post-content"><p>No fresh listings yet. New farmer posts will appear here automatically.</p></div>';
+            return;
+        }
+
+        container.innerHTML = visiblePosts.map((post) => {
+            const safeImg = resolvePostImageUrl(post);
+            const safeTitle = escapeHtmlText(post.title || 'Untitled product');
+            const safeLocation = escapeHtmlText(post.location || 'Location not specified');
+            const safeFarm = escapeHtmlText(post.farm || 'FreshLink seller');
+            const safeDescription = escapeHtmlText(post.description || 'Fresh produce available now.');
+            const amountText = post.amount ? escapeHtmlText(post.amount) : '1 unit';
+            const priceText = Number(post.price || 0).toFixed(2);
+            const unitText = Number(post.unit_price || post.price || 0).toFixed(2);
+            const href = `product.html?title=${encodeURIComponent(post.title || 'FreshLink listing')}&image=${encodeURIComponent(safeImg)}&price=${encodeURIComponent(post.price)}&amount=${encodeURIComponent(post.amount || '1 unit')}&unit_price=${encodeURIComponent(post.unit_price || post.price)}&location=${encodeURIComponent(post.location || '')}&contact=${encodeURIComponent(post.contact || '')}&email=${encodeURIComponent(post.email || '')}&description=${encodeURIComponent(post.description || '')}&farm=${encodeURIComponent(post.farm || 'FreshLink seller')}&category=${encodeURIComponent(post.category || 'produce')}&video_url=${encodeURIComponent(post.video_url || '')}`;
+
+            return `
+                <a class="product-link" href="${href}">
+                    <div class="post">
+                        <img src="${safeImg}" alt="${safeTitle}" loading="lazy">
+                        <div class="post-content">
+                            <div class="post-title">${safeTitle}</div>
+                            <div class="post-meta">📍 ${safeLocation}</div>
+                            <div class="post-meta">👩‍🌾 ${safeFarm}</div>
+                            <div class="post-text">${amountText} • R${unitText} each • Total R${priceText}</div>
+                            <div class="post-text">${safeDescription}</div>
+                        </div>
+                    </div>
+                </a>
+            `;
+        }).join('');
+    } catch (error) {
+        container.innerHTML = `<div class="post-content"><p>Unable to load featured listings right now.</p></div>`;
+    }
+}
+
+function setupMarketButton() {
+    const btn = document.getElementById('marketBtn');
+    if (!btn) return;
+    btn.addEventListener('click', async () => {
+        const tools = window.FreshLinkSubscription;
+        if (tools) {
+            const gate = await tools.requireFeatureAccess('live_market_prices', { redirect: false });
+            if (!gate.allowed) {
+                window.location.href = 'settings.html?upgrade=1&feature=live_market_prices';
+                return;
+            }
+        }
+
+        window.location.href = 'market.html';
+    });
+}
+
+function getSeasonByMonth(monthIndex) {
+    if ([11, 0, 1].includes(monthIndex)) return 'Summer';
+    if ([2, 3, 4].includes(monthIndex)) return 'Autumn';
+    if ([5, 6, 7].includes(monthIndex)) return 'Winter';
+    return 'Spring';
+}
+
+function renderAiRecommendations() {
+    const list = document.getElementById('aiRecoList');
+    if (!list) return;
+
+    const now = new Date();
+    const hour = now.getHours();
+    const season = getSeasonByMonth(now.getMonth());
+    const cart = getCartItems();
+
+    const messages = [];
+    messages.push(`Season insight: ${season} is active now. Focus on crop cycles that mature before major weather shifts.`);
+
+    if (hour < 11) {
+        messages.push('Morning plan: schedule irrigation checks and post fresh listings before midday for better buyer visibility.');
+    } else if (hour < 16) {
+        messages.push('Midday plan: compare market prices and adjust unit prices for fast-moving produce.');
+    } else {
+        messages.push('Evening plan: update tomorrow harvest quantities and pre-plan deliveries for the nearest buyers.');
+    }
+
+    if (cart.length > 0) {
+        messages.push(`Buyer behavior: your cart has ${cart.length} item(s). AI suggests bundling similar products from the same farm to reduce delivery cost.`);
+    } else {
+        messages.push('Growth tip: no items in cart yet. Start with top seasonal products and use AI assistant for profit projections.');
+    }
+
+    list.innerHTML = messages.map((item) => `<div class="ai-reco-item">${escapeHtmlText(item)}</div>`).join('');
+}
+
+setupProfileButton();
+setupMarketButton();
+setupCartButton();
+updateCartBadge();
+renderHomeCartPreview();
+renderAiRecommendations();
+renderFeaturedPosts();
+
+let map = null;
+let userLocation = null;
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+}
+
+window.findNearbyFarms = async function() {
+    const container = document.getElementById("mapContainer");
+    container.style.display = "block";
+
+    if (!navigator.geolocation) {
+        document.getElementById("locationInfo").innerText = "Geolocation not supported";
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (position) => {
+        userLocation = {
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+        };
+
+        if (!map) {
+            map = L.map("map").setView([userLocation.lat, userLocation.lon], 13);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+        } else {
+            map.setView([userLocation.lat, userLocation.lon], 13);
+        }
+
+        L.circleMarker([userLocation.lat, userLocation.lon], {
+            radius: 8,
+            fillColor: "#22c55e",
+            color: "#fff",
+            weight: 3,
+            opacity: 1,
+            fillOpacity: 0.8
+        }).addTo(map).bindPopup("Your Location");
+
+        const { data: posts } = await supabase.from("posts").select("*");
+        const nearby = (posts || [])
+            .filter(p => p.latitude && p.longitude)
+            .map(p => ({
+                ...p,
+                distance: calculateDistance(userLocation.lat, userLocation.lon, p.latitude, p.longitude)
+            }))
+            .filter(p => p.distance <= 50)
+            .sort((a, b) => a.distance - b.distance);
+
+        document.getElementById("locationInfo").innerText = `Found ${nearby.length} farms within 50 km`;
+
+        nearby.forEach(post => {
+            L.marker([post.latitude, post.longitude]).addTo(map)
+                .bindPopup(`<b>${escapeHtmlText(post.title)}</b><br>${post.distance.toFixed(1)} km away<br>R${Number(post.price || 0).toFixed(2)}`);
+        });
+
+        const productsDiv = document.getElementById("nearbyProducts");
+        productsDiv.innerHTML = "";
+        nearby.slice(0, 5).forEach(post => {
+            const card = document.createElement("div");
+            card.className = "post";
+            const safeImg = resolvePostImageUrl(post);
+            const safeTitle = escapeHtmlText(post.title || "Untitled product");
+            card.innerHTML = `
+                <img src="${safeImg}" alt="${safeTitle}">
+                <div class="post-content">
+                    <div class="post-title">${safeTitle}</div>
+                    <div class="post-meta">📍 ${post.distance.toFixed(1)} km away</div>
+                    <div class="post-text">R${Number(post.price || 0).toFixed(2)}</div>
+                </div>
+            `;
+            productsDiv.appendChild(card);
+        });
+    }, (error) => {
+        document.getElementById("locationInfo").innerText = `Error: ${error.message}`;
+    });
+};
+</script>
+
+</body>
+</html>
+
+

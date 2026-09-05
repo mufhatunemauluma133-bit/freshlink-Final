@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+
+<title>FreshLink Event Registration</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<script type="module" src="app.js"></script>
+<div class="page">
+    <div class="topbar">
+        <button onclick="window.location.href='settings.html'">Back</button>
+        <div class="title">Event Registration</div>
+        <div style="width:30px;"></div>
+    </div>
+
+    <div class="settings-container">
+        <div class="section">
+            <div class="setting-item" style="display:block; padding:0; overflow:hidden; border-radius:18px; background:linear-gradient(135deg, rgba(34,197,94,0.16), rgba(20,184,166,0.14)); border:1px solid rgba(34,197,94,0.18);">
+                <img src="https://images.unsplash.com/photo-1515169067868-5387ec356754?auto=format&fit=crop&w=900&q=80" alt="Big farming event" style="width:100%; height:180px; object-fit:cover; display:block;">
+                <div style="padding:16px;">
+                    <div style="font-weight:700; color:#f8fafc; margin-bottom:6px;">Big Farming Event</div>
+                    <div style="font-size:13px; color:#cbd5e1; margin-bottom:14px;">Register below to receive updates and be notified when tickets open for this exciting farming event.</div>
+
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <input id="eventName" class="setting-input" value="Big Farming Event" readonly>
+                        <input id="eventEmail" class="setting-input" type="email" placeholder="Your email address">
+                        <input id="eventPhone" class="setting-input" type="tel" placeholder="Your cell number">
+                        <button class="primary-btn" onclick="registerForEvent()">Register for updates</button>
+                        <div id="eventMessage" class="status-message"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button onclick="window.location.href='jobs.html'">Jobs</button>
+    <button onclick="window.location.href='chat.html'">Chat</button>
+    <button class="active" onclick="window.location.href='settings.html'">Settings</button>
+</div>
+
+<script>
+function registerForEvent() {
+    const email = document.getElementById('eventEmail').value.trim();
+    const phone = document.getElementById('eventPhone').value.trim();
+    const msg = document.getElementById('eventMessage');
+
+    function setEventMessage(text, tone) {
+        msg.className = `status-message ${tone}`;
+        msg.textContent = text;
+    }
+
+    if (!email || !phone) {
+        setEventMessage('Please enter your email and cell number.', 'error');
+        return;
+    }
+
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    const phoneDigits = phone.replace(/\D/g, '');
+    if (!emailValid) {
+        setEventMessage('Please enter a valid email address.', 'error');
+        return;
+    }
+
+    if (phoneDigits.length < 9) {
+        setEventMessage('Please enter a valid phone number.', 'error');
+        return;
+    }
+
+    const registrations = JSON.parse(localStorage.getItem('eventRegistrations') || '[]');
+    const exists = registrations.some(item => item.email === email && item.phone === phoneDigits);
+
+    if (!exists) {
+        registrations.push({ name: 'Big Farming Event', email, phone: phoneDigits, registeredAt: new Date().toISOString() });
+        localStorage.setItem('eventRegistrations', JSON.stringify(registrations));
+    }
+
+    setEventMessage('You are now registered for event updates.', 'success');
+    document.getElementById('eventEmail').value = '';
+    document.getElementById('eventPhone').value = '';
+}
+</script>
+</body>
+</html>
+
+

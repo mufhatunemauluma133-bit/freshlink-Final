@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+
+<title>Delivery Tracking</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    .review-box {
+        margin-top: 18px;
+        border: 1px solid rgba(148,163,184,0.12);
+        border-radius: 16px;
+        background: #0f172a;
+        padding: 16px;
+    }
+    .review-stars {
+        display: flex;
+        gap: 6px;
+        margin: 10px 0 12px;
+    }
+    .star-btn {
+        border: none;
+        background: transparent;
+        color: #64748b;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 2px 4px;
+        line-height: 1;
+    }
+    .star-btn.active {
+        color: #f59e0b;
+    }
+    .review-input,
+    .review-select {
+        width: 100%;
+        border: 1px solid rgba(148,163,184,0.2);
+        background: #081220;
+        color: #f8fafc;
+        border-radius: 12px;
+        padding: 12px;
+        margin-top: 8px;
+    }
+</style>
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="page">
+    <div class="topbar">
+        <button onclick="window.location.href='payment.html'">Back</button>
+        <div class="title">Tracking</div>
+        <div style="width: 30px;"></div>
+    </div>
+
+    <div class="box">
+        <h2>ðŸ“¦ Delivery tracking</h2>
+        <p>This shows the driver assigned to your order and the contact details for follow-up.</p>
+        <div id="trackingDetails" class="farm-summary"></div>
+        <a id="callDriverBtn" class="primary-btn inline-action" href="#">Call driver</a>
+        <a id="messageDriverBtn" class="secondary-btn inline-action" href="#">Message driver</a>
+
+        <div class="review-box">
+            <h3 style="margin:0 0 10px; color:#f8fafc;">Order received and seller review</h3>
+            <p style="margin:0 0 12px; color:#cbd5e1;">When your order arrives, confirm delivery and rate the seller out of 5 stars.</p>
+            <button id="markReceivedBtn" class="primary-btn" style="margin-bottom:12px;">Mark as received</button>
+            <div id="receivedStatus" style="font-size:13px; color:#94a3b8; margin-bottom:12px;"></div>
+
+            <div id="reviewFormWrap" style="display:none;">
+                <label for="reviewSeller" style="font-size:13px; color:#cbd5e1;">Seller</label>
+                <select id="reviewSeller" class="review-select"></select>
+
+                <div style="font-size:13px; color:#cbd5e1; margin-top:12px;">Star rating</div>
+                <div id="reviewStars" class="review-stars" role="radiogroup" aria-label="Rate seller 1 to 5 stars">
+                    <button class="star-btn" data-star="1" aria-label="1 star">â˜…</button>
+                    <button class="star-btn" data-star="2" aria-label="2 stars">â˜…</button>
+                    <button class="star-btn" data-star="3" aria-label="3 stars">â˜…</button>
+                    <button class="star-btn" data-star="4" aria-label="4 stars">â˜…</button>
+                    <button class="star-btn" data-star="5" aria-label="5 stars">â˜…</button>
+                </div>
+
+                <label for="reviewComment" style="font-size:13px; color:#cbd5e1;">Comment (optional)</label>
+                <textarea id="reviewComment" class="review-input" rows="4" maxlength="500" placeholder="Tell other buyers about your experience with this seller..."></textarea>
+
+                <button id="submitReviewBtn" class="secondary-btn" style="margin-top:12px;">Submit review</button>
+                <div id="reviewMsg" class="message" style="display:none; margin-top:10px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button onclick="window.location.href='jobs.html'">Jobs</button>
+    <button onclick="window.location.href='chat.html'">Chat</button>
+    <button onclick="window.location.href='settings.html'">Settings</button>
+</div>
+
+<script type="module" src="tracking.js"></script>
+</body>
+</html>
+
+

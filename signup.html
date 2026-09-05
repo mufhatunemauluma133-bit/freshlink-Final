@@ -1,0 +1,46 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+
+<title>FreshLink Signup</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="glass-card">
+    <div class="logo">🌿 FreshLink</div>
+    <div class="subtitle">Create your account and start buying farm produce.</div>
+
+    <input id="email" type="email" placeholder="Email address">
+    <input id="password" type="password" placeholder="Password">
+    <select id="accountType" style="margin-top:12px; padding:12px; border-radius:12px; border:1px solid rgba(148,163,184,0.18); background:#07111d; color:#f8fafc;">
+        <option value="buyer">Buyer</option>
+        <option value="supplier">Supplier / Farmer</option>
+        <option value="shop">Shop</option>
+    </select>
+    <div id="accountTypeHint" style="margin-top:10px; color:#94a3b8; font-size:12px; line-height:1.45;">Suppliers and farmers will be guided to secure payout onboarding after signup.</div>
+
+    <label style="display:flex; gap:8px; align-items:flex-start; margin:12px 0; color:#cbd5e1; font-size:13px; line-height:1.45;">
+        <input id="acceptRules" type="checkbox" style="margin-top:2px;">
+        <span>
+            I agree to the <a href="terms.html" style="color:#7dd3fc;">Terms of Service</a> and <a href="privacy.html" style="color:#7dd3fc;">Privacy Policy</a>, including intellectual property and anti-abuse rules.
+        </span>
+    </label>
+
+    <button class="primary-btn" onclick="register()">Sign Up</button>
+    <button class="inline-action" onclick="resendVerification()">Resend Verification Email</button>
+    <button class="secondary-btn" onclick="window.location.href='index.html'">Back to Login</button>
+
+    <p id="msg"></p>
+</div>
+</body>
+</html>
+
+

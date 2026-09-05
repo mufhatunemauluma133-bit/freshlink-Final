@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+
+<title>Farm Profile</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    /* Instagram-like profile styles */
+    .profile-hero {
+        position: relative;
+        height: 220px;
+        overflow: hidden;
+        background: #0b1120;
+    }
+
+    .profile-hero img {
+        width: 100%;
+        height: 220px;
+        object-fit: cover;
+        filter: brightness(0.7);
+    }
+
+    .profile-top {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 0 16px;
+        margin-top: -48px;
+    }
+
+    .profile-avatar {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        border: 3px solid #fff;
+        overflow: hidden;
+        background: #111827;
+        flex-shrink: 0;
+        margin-left: 8px;
+    }
+
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    .profile-header {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .profile-name { font-size: 18px; font-weight: 800; color: #fff; }
+    .profile-handle { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+
+    .profile-actions { margin-left: auto; display:flex; gap:8px; }
+    .profile-actions button { padding: 8px 12px; border-radius: 8px; font-weight:700; cursor:pointer; border:none; }
+    .btn-primary { background: linear-gradient(135deg,#22c55e,#14b8a6); color:#fff; }
+    .btn-outline { background: rgba(255,255,255,0.06); color:#fff; border:1px solid rgba(255,255,255,0.06); }
+
+    .profile-stats { display:flex; justify-content:center; gap:24px; padding:12px 0; border-bottom:1px solid rgba(148,163,184,0.06); }
+    .stat { text-align:center; color:#fff; }
+    .stat strong { display:block; font-size:16px; }
+
+    .profile-bio { padding: 12px 16px; color:#cbd5e1; font-size:14px; }
+
+    .profile-owner-note { padding: 10px 16px 0; color:#d1d5db; font-size:13px; }
+    .owner-quickbar { display:grid; grid-template-columns: 1fr 1fr; gap:10px; padding:12px 16px; }
+    .owner-quickbar button { width:100%; }
+
+    .profile-grid { display:grid; grid-template-columns: repeat(3,1fr); gap:6px; padding:6px; }
+    .grid-item { position: relative; overflow:hidden; width:100%; padding-top:100%; }
+    .grid-item img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+
+    .profile-section-block { padding: 12px 10px 0; }
+    .profile-section-block h3 { margin: 0 0 10px; padding: 0 6px; color: #f8fafc; }
+    .grow-profile-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 16px;
+        cursor: pointer;
+        background: #0b1120;
+        border: 1px solid rgba(148,163,184,0.08);
+    }
+    .grow-profile-card img {
+        width: 100%;
+        aspect-ratio: 1 / 1.2;
+        object-fit: cover;
+        display: block;
+    }
+    .grow-profile-overlay {
+        position: absolute;
+        inset: auto 0 0 0;
+        padding: 12px;
+        background: linear-gradient(180deg, rgba(2,6,23,0), rgba(2,6,23,0.86));
+    }
+    .grow-profile-overlay strong {
+        display: block;
+        color: #fff;
+        font-size: 13px;
+        line-height: 1.35;
+    }
+    .grow-profile-overlay span {
+        display: block;
+        margin-top: 4px;
+        color: #cbd5e1;
+        font-size: 12px;
+    }
+
+    .empty-grid { padding:18px; color:#94a3b8; text-align:center; }
+
+    @media (max-width:700px){ .profile-grid{ gap:4px } .profile-top{padding:0 12px} .owner-quickbar { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="topbar">
+    <button onclick="window.location.href='home.html'">Back</button>
+    <div class="title">Farm Profile</div>
+    <div style="width: 30px;"></div>
+</div>
+
+<div class="profile-hero">
+    <img id="profileBanner" src="https://source.unsplash.com/900x600/?farm" alt="Farm banner">
+    <div class="profile-hero-content">
+        <div class="profile-avatar" id="profileAvatar"><img src="https://source.unsplash.com/200x200/?farmer" alt="Farmer"></div>
+        <div class="profile-name" id="profileName">Farm Name</div>
+        <div class="profile-handle" id="profileHandle" style="margin-top:4px; color:#cbd5e1; font-size:13px;">@username</div>
+        <div id="verificationBadge" style="display:none; margin-top:8px; color:#86efac; font-size:13px; font-weight:700;">âœ“ Verified farmer/supplier</div>
+        <div class="profile-bio" id="profileBio">Modern farm producing fresh fruits, vegetables and farm-to-table goods. See products below and upload directly from your profile.</div>
+        <div style="padding:0 16px 12px; display:flex; gap:8px; flex-wrap:wrap;">
+            <span id="profileCategory" style="display:inline-block; padding:6px 10px; border-radius:999px; background:rgba(34,197,94,0.14); color:#86efac; font-size:12px;">Category: Not set</span>
+            <span id="profileSpecialization" style="display:inline-block; padding:6px 10px; border-radius:999px; background:rgba(59,130,246,0.14); color:#bfdbfe; font-size:12px;">Specialisation: Not set</span>
+        </div>
+        <div class="profile-actions" id="ownerActions" style="display:none;">
+            <button id="editProfileBtn" class="btn-outline secondary-btn inline-action">Edit Profile</button>
+            <button id="uploadProfileBtn" class="btn-primary primary-btn">Upload Product</button>
+        </div>
+        <a id="followBtn" class="btn-outline secondary-btn inline-action" href="#" style="display:none; margin-left:16px;">Follow</a>
+        <div class="profile-owner-note" id="profileOwnerNote">Farm owners can edit their profile and upload new products from here.</div>
+    </div>
+</div>
+
+<div class="owner-quickbar" id="ownerQuickBar" style="display:none;">
+    <button id="quickUploadBtn" class="btn-primary primary-btn">Add Product</button>
+    <button id="quickGrowBtn" class="btn-primary primary-btn">Add Grow Video</button>
+    <button id="quickEditBtn" class="btn-outline secondary-btn">Edit Profile</button>
+</div>
+
+<div class="profile-details">
+    <div class="profile-stats">
+        <div class="profile-stat">
+            <strong id="profileLocation">Location</strong>
+            <span>Farm location</span>
+        </div>
+        <div class="profile-stat">
+            <strong id="profilePostsCount">0</strong>
+            <span>Products posted</span>
+        </div>
+        <div class="profile-stat">
+            <strong id="profileSold">12</strong>
+            <span>Orders received</span>
+        </div>
+        <div class="profile-stat">
+            <strong id="profileGrowCount">0</strong>
+            <span>Grow videos</span>
+        </div>
+    </div>
+
+    <div class="profile-grid" id="profilePosts"></div>
+    <div class="empty-grid" id="emptyProfileMessage" style="display:none;">No products posted yet. Farmers can upload from the button above.</div>
+
+    <div class="profile-section-block">
+        <h3>FreshLink Grow videos</h3>
+        <div class="profile-grid" id="profileGrowVideos"></div>
+        <div class="empty-grid" id="emptyGrowMessage" style="display:none;">No FreshLink Grow videos posted yet.</div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,0.6); align-items:center; justify-content:center; z-index:60;">
+    <div style="width:94%; max-width:520px; background:#041122; border-radius:14px; padding:16px;">
+        <h3>Edit Profile</h3>
+        <input id="editFarmName" placeholder="Farm / display name">
+        <input id="editUsername" placeholder="Username (e.g. greenvalley)">
+        <input id="editLocation" placeholder="Farm location">
+        <select id="editFarmCategory">
+            <option value="">Select farmer category</option>
+            <option value="Crop Farming">Crop Farming</option>
+            <option value="Livestock Farming">Livestock Farming</option>
+            <option value="Poultry Farming">Poultry Farming</option>
+            <option value="Dairy Farming">Dairy Farming</option>
+            <option value="Horticulture">Horticulture</option>
+            <option value="Aquaculture">Aquaculture</option>
+            <option value="Mixed Farming">Mixed Farming</option>
+            <option value="Organic Farming">Organic Farming</option>
+        </select>
+        <input id="editSpecialization" list="specializationOptions" placeholder="Specialisation (e.g. Maize, Tomatoes, Cattle)">
+        <datalist id="specializationOptions">
+            <option value="Maize"></option>
+            <option value="Tomatoes"></option>
+            <option value="Potatoes"></option>
+            <option value="Citrus"></option>
+            <option value="Avocados"></option>
+            <option value="Cattle"></option>
+            <option value="Goats"></option>
+            <option value="Sheep"></option>
+            <option value="Chickens"></option>
+            <option value="Eggs"></option>
+            <option value="Milk"></option>
+            <option value="Herbs and Spices"></option>
+        </datalist>
+        <textarea id="editBio" placeholder="Bio" rows="3"></textarea>
+        <div style="display:flex; gap:8px;">
+            <div style="flex:1;"><label>Avatar</label><input type="file" id="editAvatar"></div>
+            <div style="flex:1;"><label>Banner</label><input type="file" id="editBanner"></div>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:10px;"><button id="saveProfileBtn" class="primary-btn inline-action">Save</button><button id="cancelEditBtn" class="secondary-btn inline-action">Cancel</button></div>
+        <p id="editProfileMsg" style="color:#94a3b8"></p>
+        <div style="margin-top:10px; display:flex; flex-wrap:wrap; gap:8px;">
+            <button id="requestVerificationBtn" class="btn-primary primary-btn">Request verification</button>
+            <button id="payoutSetupBtn" class="btn-outline secondary-btn inline-action">Secure payout setup</button>
+        </div>
+    </div>
+</div>
+
+<!-- Upload From Profile Modal -->
+<div id="uploadProfileModal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,0.6); align-items:center; justify-content:center; z-index:60;">
+    <div style="width:94%; max-width:520px; background:#041122; border-radius:14px; padding:16px;">
+        <h3>Upload Product</h3>
+        <input id="pTitle" placeholder="Product name">
+        <input id="pAmount" placeholder="Quantity (e.g. 10 kg)">
+        <input id="pUnitPrice" placeholder="Price per unit (R)">
+        <input id="pTotalPrice" placeholder="Total price (R)">
+        <input id="pContact" placeholder="Contact (WhatsApp)">
+        <input type="file" id="pImage">
+        <div style="display:flex; gap:8px; margin-top:10px;"><button id="uploadFromProfileBtn" class="primary-btn inline-action">Post</button><button id="cancelUploadBtn" class="secondary-btn inline-action">Cancel</button></div>
+        <p id="uploadProfileMsg" style="color:#94a3b8"></p>
+    </div>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button onclick="window.location.href='jobs.html'">Jobs</button>
+    <button onclick="window.location.href='chat.html'">Chat</button>
+    <button onclick="window.location.href='settings.html'">Settings</button>
+</div>
+
+<script type="module" src="profile.js"></script>
+</body>
+</html>
+
+

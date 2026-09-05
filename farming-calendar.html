@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+<title>Farming Calendar</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    .calendar-page {
+        padding: 24px 16px 120px;
+    }
+
+    .calendar-card {
+        background: linear-gradient(145deg, rgba(31, 47, 38, 0.96), rgba(20, 33, 27, 0.92));
+        border: 1px solid rgba(183, 223, 100, 0.18);
+        border-radius: 24px;
+        padding: clamp(20px, 4vw, 32px);
+        margin-bottom: 18px;
+        box-shadow: 0 24px 60px rgba(3, 12, 7, 0.24);
+    }
+
+    .calendar-title {
+        margin: 0 0 10px;
+        color: #f5f7ef;
+        font-size: clamp(24px, 5vw, 36px);
+        letter-spacing: -0.05em;
+    }
+
+    .calendar-copy {
+        margin: 0;
+        max-width: 620px;
+        color: #cbd8cb;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .calendar-filters {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(150px, 1fr));
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+    .calendar-filters input,
+    .calendar-filters select {
+        margin-top: 0;
+        background: rgba(10, 22, 16, 0.72) !important;
+        border-color: rgba(210, 231, 204, 0.2) !important;
+    }
+
+    .calendar-shortcuts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .calendar-shortcuts button {
+        width: auto;
+        margin-top: 0;
+        padding: 8px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.22);
+        background: rgba(183, 223, 100, 0.08);
+        color: #e6f0df;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .calendar-result {
+        border: 1px solid rgba(210, 231, 204, 0.14);
+        border-radius: 18px;
+        padding: 18px;
+        background: rgba(10, 22, 16, 0.6);
+        margin-bottom: 12px;
+        transition: transform 180ms ease, border-color 180ms ease;
+    }
+
+    .calendar-result:hover {
+        transform: translateY(-2px);
+        border-color: rgba(183, 223, 100, 0.42);
+    }
+
+    .calendar-result h3 {
+        margin: 0 0 8px;
+        color: #f5f7ef;
+        font-size: 19px;
+    }
+
+    .calendar-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 8px;
+    }
+
+    .calendar-tag {
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        border: 1px solid rgba(148, 163, 184, 0.25);
+        color: #dbe8d8;
+        background: rgba(183, 223, 100, 0.1);
+    }
+
+    .calendar-metadata {
+        margin: 5px 0;
+        color: #d5e0d4;
+        font-size: 13px;
+    }
+
+    .calendar-empty {
+        color: #b8c9b7;
+        font-size: 13px;
+        text-align: center;
+        padding: 20px 10px;
+    }
+
+    @media (max-width: 700px) {
+        .calendar-filters {
+            grid-template-columns: 1fr;
+        }
+
+        .calendar-page {
+            padding-top: 16px;
+        }
+    }
+</style>
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="topbar">
+    <button onclick="window.location.href='menu.html'">Back</button>
+    <div class="title">Farming Calendar</div>
+    <div style="width:30px;"></div>
+</div>
+
+<div class="page calendar-page">
+    <div class="calendar-card">
+        <h2 class="calendar-title">Search Crop Calendar</h2>
+        <p class="calendar-copy">Type a crop name and choose a month to see the best planting and harvesting schedule.</p>
+
+        <div class="calendar-filters">
+            <input id="cropSearchInput" type="text" placeholder="Search crop, for example maize, spinach, tomato">
+            <select id="monthFilter">
+                <option value="">Any month</option>
+                <option>January</option>
+                <option>February</option>
+                <option>March</option>
+                <option>April</option>
+                <option>May</option>
+                <option>June</option>
+                <option>July</option>
+                <option>August</option>
+                <option>September</option>
+                <option>October</option>
+                <option>November</option>
+                <option>December</option>
+            </select>
+            <select id="regionFilter">
+                <option value="">All regions</option>
+                <option value="warm">Warm region</option>
+                <option value="temperate">Temperate region</option>
+                <option value="cool">Cool region</option>
+            </select>
+            <button id="runCalendarSearch" class="primary-btn">Search Calendar</button>
+        </div>
+
+        <div class="calendar-shortcuts">
+            <button type="button" data-crop="Maize">Maize</button>
+            <button type="button" data-crop="Tomato">Tomato</button>
+            <button type="button" data-crop="Potato">Potato</button>
+            <button type="button" data-crop="Spinach">Spinach</button>
+            <button type="button" data-crop="Cabbage">Cabbage</button>
+            <button type="button" data-crop="Onion">Onion</button>
+        </div>
+    </div>
+
+    <div class="calendar-card">
+        <div id="calendarResults"></div>
+    </div>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button onclick="window.location.href='search.html'">Search</button>
+    <button onclick="window.location.href='profile.html'">Profile</button>
+    <button class="active" onclick="window.location.href='menu.html'">More</button>
+</div>
+
+<script type="module" src="farming-calendar.js"></script>
+</body>
+</html>

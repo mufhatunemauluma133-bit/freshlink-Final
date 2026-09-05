@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+
+<title>Post a Job</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="topbar">
+    <button onclick="window.location.href='jobs.html'">Back</button>
+    <div class="title">Post a Job</div>
+    <div style="width: 30px;"></div>
+</div>
+
+<div class="page">
+    <div class="glass-card" style="max-width: 520px; margin: 20px auto;">
+        <h2>ðŸ“‹ Create Job Posting</h2>
+
+        <input id="title" type="text" placeholder="Job Title (e.g., Farm Manager)">
+        
+        <select id="jobType" style="width: 100%; padding: 14px 16px; border-radius: 16px; border: 1px solid rgba(148, 163, 184, 0.18); background: rgba(15, 23, 42, 0.92); color: #f8fafc; margin-top: 12px; font-size: 14px;">
+            <option value="">Select Job Type</option>
+            <option value="full-time">Full Time</option>
+            <option value="part-time">Part Time</option>
+            <option value="contract">Contract</option>
+            <option value="seasonal">Seasonal</option>
+        </select>
+
+        <input id="location" type="text" placeholder="Job Location">
+        <input id="duration" type="text" placeholder="Duration (e.g., 3 months, Permanent)">
+
+        <div style="display: flex; gap: 12px; margin-top: 12px;">
+            <input id="salaryMin" type="number" placeholder="Min Salary (R)" style="flex: 1;">
+            <input id="salaryMax" type="number" placeholder="Max Salary (R)" style="flex: 1;">
+        </div>
+
+        <textarea id="description" placeholder="Job Description" style="min-height: 120px; margin-top: 12px;"></textarea>
+        
+        <textarea id="requirements" placeholder="Requirements & Qualifications" style="min-height: 100px; margin-top: 12px;"></textarea>
+
+        <input id="contactWhatsapp" type="text" placeholder="Your WhatsApp Number">
+        <input id="contactEmail" type="email" placeholder="Your Email">
+
+        <button class="primary-btn" onclick="postJob()">Post Job</button>
+
+        <p id="msg"></p>
+    </div>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button onclick="window.location.href='jobs.html'">Jobs</button>
+    <button onclick="window.location.href='chat.html'">Chat</button>
+    <button onclick="window.location.href='settings.html'">Settings</button>
+</div>
+
+<script type="module" src="post-job.js"></script>
+</body>
+</html>
+
+

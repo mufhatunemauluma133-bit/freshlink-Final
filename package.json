@@ -1,0 +1,9 @@
+{
+  "name": "freshlink-ai-farm-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Simple backend for FreshLink Farm AI requests",
+  "scripts": {
+    "start": "node sever.js"
+  }
+}

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+
+<title>FreshLink Product</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    .detail-page {
+        padding-bottom: 120px;
+    }
+
+    .detail-image {
+        width: 100%;
+        border-radius: 24px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .detail-image img {
+        width: 100%;
+        height: 320px;
+        object-fit: cover;
+    }
+
+    .detail-info {
+        background: rgba(10, 18, 34, 0.95);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        border-radius: 24px;
+        padding: 20px;
+        margin: 0 16px;
+    }
+
+    .detail-title {
+        font-size: 24px;
+        margin: 0 0 10px;
+        color: #f8fafc;
+    }
+
+    .detail-meta {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+        color: #94a3b8;
+        font-size: 13px;
+    }
+
+    .detail-price {
+        font-size: 28px;
+        font-weight: 800;
+        margin: 10px 0;
+        color: #22c55e;
+    }
+
+    .detail-description {
+        color: #cbd5e1;
+        line-height: 1.7;
+        margin-bottom: 18px;
+    }
+
+    .detail-farm {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 20px;
+    }
+
+    .farm-details {
+        color: #f8fafc;
+        font-size: 14px;
+    }
+
+    .farm-contact {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .contact-card {
+        background: rgba(15, 23, 42, 0.92);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        border-radius: 18px;
+        padding: 16px;
+    }
+
+    .contact-card h3 {
+        margin: 0 0 10px;
+        font-size: 16px;
+        color: #f8fafc;
+    }
+
+    .contact-card p {
+        margin: 4px 0;
+        color: #94a3b8;
+        font-size: 13px;
+    }
+
+    .detail-actions {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .detail-actions button,
+    .detail-actions a {
+        flex: 1;
+        border: none;
+        border-radius: 18px;
+        padding: 14px 16px;
+        font-weight: 700;
+        cursor: pointer;
+        text-align: center;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .add-to-cart {
+        background: linear-gradient(135deg, #22c55e 0%, #14b8a6 100%);
+        color: #fff;
+    }
+
+    .contact-button {
+        background: rgba(255, 255, 255, 0.08);
+        color: #f8fafc;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .detail-actions button:hover,
+    .detail-actions a:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+    }
+
+    .notify {
+        margin-top: 14px;
+        font-size: 13px;
+        color: #a7f3d0;
+    }
+
+    .navbar {
+        bottom: 0;
+    }
+
+    @media (max-width: 700px) {
+        .detail-image img {
+            height: 250px;
+        }
+
+        .detail-info {
+            margin: 0 12px;
+            padding: 16px;
+        }
+
+        .detail-title {
+            font-size: 20px;
+        }
+
+        .detail-actions {
+            gap: 10px;
+        }
+
+        .detail-actions button,
+        .detail-actions a {
+            flex: 1 1 100%;
+        }
+    }
+
+    @media (min-width: 960px) {
+        .detail-page {
+            max-width: 980px;
+            margin: 0 auto;
+        }
+
+        .detail-image img {
+            height: 420px;
+        }
+    }
+</style>
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="topbar">
+    <button onclick="window.location.href='home.html'">Back</button>
+    <div class="title">Product Details</div>
+    <div style="width: 30px;"></div>
+</div>
+
+<div class="page detail-page">
+    <div class="detail-image" id="detailImage"><img src="" alt="Product"></div>
+    <div class="detail-info">
+        <div class="detail-title" id="detailTitle">Product Name</div>
+        <div class="detail-meta">
+            <span id="detailLocation">Location</span>
+            <span id="detailFarm">Farm</span>
+        </div>
+        <div class="detail-meta">
+            <span id="detailAmount">Amount</span>
+            <span id="detailUnitPrice">Price each</span>
+        </div>
+        <div class="detail-price" id="detailPrice">R0</div>
+        <div class="detail-description" id="detailDescription">Product description goes here.</div>
+        <div class="detail-meta">
+            <span id="detailCategory">Farm produce</span>
+            <span id="detailVideoLabel" style="display:none;">HD video available</span>
+        </div>
+        <div id="detailVideoWrap" style="display:none; margin-bottom:16px;">
+            <video id="detailVideo" controls playsinline style="width:100%; border-radius:16px; background:#020617;"></video>
+        </div>
+
+        <div class="detail-farm">
+            <div class="farm-details">
+                <div><strong>Farm:</strong> <span id="detailFarmName">Farm name</span></div>
+                <div><strong>Contact:</strong> <span id="detailPhone">+27 0 000 0000</span></div>
+                <div><strong>Email:</strong> <span id="detailEmail">farm@email.com</span></div>
+                <div id="verificationBadge" style="display:none; margin-top:8px; color:#86efac; font-weight:700;">âœ“ Verified farmer/supplier</div>
+                 <div style="margin-top:8px;"><a id="viewProfileLink" class="profile-link" href="#">View farm profile</a></div>
+                 <div style="margin-top:8px;"><a id="viewProfileSmall" class="contact-button" href="#">View Farm Profile</a></div>
+            </div>
+        </div>
+
+        <div class="detail-actions">
+            <button class="add-to-cart" id="addToCartBtn">Buy Now</button>
+            <button class="contact-button" id="messageSellerBtn">Message Seller</button>
+            <button class="contact-button" id="callSellerBtn">Call Seller</button>
+            <button class="contact-button" id="viewProfileBtn">View Farm Profile</button>
+            <a class="contact-button" href="#" id="contactBtn">Email Farm</a>
+        </div>
+
+        <div class="notify" id="detailNotify"></div>
+    </div>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button onclick="window.location.href='jobs.html'">Jobs</button>
+    <button onclick="window.location.href='chat.html'">Chat</button>
+    <button onclick="window.location.href='settings.html'">Settings</button>
+</div>
+
+<script type="module" src="product.js"></script>
+</body>
+</html>
+
+

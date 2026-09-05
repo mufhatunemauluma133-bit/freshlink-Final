@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+
+<title>FreshLink</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="welcome-page">
+<script type="module" src="app.js"></script>
+
+<div class="welcome-background">
+    <video id="welcomeVideo" class="welcome-video" autoplay muted loop playsinline preload="metadata" poster="https://images.unsplash.com/photo-1592982537447-2779b34be2bd?auto=format&fit=crop&w=1920&q=80">
+        <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+    </video>
+    <div class="welcome-fallback" aria-hidden="true"></div>
+    <div class="welcome-overlay"></div>
+</div>
+
+<main class="welcome-shell">
+    <section class="glass-card welcome-card">
+        <div class="welcome-brand">
+            <div class="logo">🌿 FreshLink</div>
+            <div class="subtitle">Built for farmers, buyers, and local delivery teams</div>
+            <h1 class="welcome-heading">Buy and sell farm produce with real people nearby.</h1>
+            <p class="welcome-copy">FreshLink helps you find trusted farms, chat directly, and arrange delivery with confidence.</p>
+        </div>
+
+        <div class="welcome-form">
+            <input id="email" type="email" placeholder="Email" autocomplete="email">
+            <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+
+            <button class="primary-btn" onclick="login()">Sign In</button>
+            <button class="secondary-btn" onclick="window.location.href='signup.html'">Create Account</button>
+            <p id="msg"></p>
+        </div>
+    </section>
+</main>
+
+<script>
+    (function () {
+        const video = document.getElementById('welcomeVideo');
+        const card = document.querySelector('.welcome-card');
+        const fallback = document.querySelector('.welcome-fallback');
+        const body = document.body;
+
+        if (card) {
+            card.style.setProperty('opacity', '1', 'important');
+            card.style.setProperty('transform', 'none', 'important');
+            card.style.setProperty('animation', 'none', 'important');
+        }
+
+        function useFallback() {
+            if (card) {
+                card.style.setProperty('opacity', '1', 'important');
+                card.style.setProperty('transform', 'none', 'important');
+            }
+            if (video) video.style.setProperty('opacity', '0', 'important');
+            if (fallback) fallback.style.setProperty('opacity', '1', 'important');
+            body.classList.add('welcome-fallback-active');
+        }
+
+        if (!video) {
+            useFallback();
+            return;
+        }
+
+        video.addEventListener('error', useFallback, { once: true });
+        video.addEventListener('loadeddata', () => {
+            body.classList.add('welcome-video-ready');
+            if (card) {
+                card.style.setProperty('opacity', '1', 'important');
+                card.style.setProperty('transform', 'none', 'important');
+            }
+            video.style.setProperty('animation', 'none', 'important');
+            video.style.setProperty('opacity', '1', 'important');
+            if (fallback) fallback.style.setProperty('opacity', '0', 'important');
+            video.play().catch(() => {});
+        }, { once: true });
+
+        setTimeout(() => {
+            if (video.readyState < 2) useFallback();
+        }, 2200);
+    })();
+</script>
+</body>
+</html>
+
+

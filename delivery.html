@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+
+<title>FreshLink Delivery</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="page">
+    <div class="topbar">
+        <button onclick="window.location.href='settings.html'">Back</button>
+        <div class="title">Delivery Service</div>
+        <div style="width: 30px;"></div>
+    </div>
+
+    <div class="box">
+        <h2>ðŸšš Register a trucker</h2>
+        <p>Farmers and suppliers can list a delivery driver, the vehicle type, and the cost per 100km. The selected driver will appear in checkout and can be tracked in-app.</p>
+
+        <form id="deliveryForm">
+            <input id="driverName" placeholder="Driver full name" required>
+            <input id="vehicleType" placeholder="Truck / Van / Pickup" required>
+            <input id="phone" placeholder="Phone number" required>
+            <input id="location" placeholder="Base location" required>
+            <input id="serviceArea" placeholder="Service area e.g. Gauteng" required>
+            <input id="costPer100km" type="number" step="0.01" min="0" placeholder="Cost per 100km" required>
+            <textarea id="notes" rows="3" placeholder="Short note about availability, loading capacity, or route coverage"></textarea>
+            <button type="submit">Register driver</button>
+        </form>
+        <div id="deliveryMessage"></div>
+    </div>
+
+    <div class="box">
+        <h2>Available delivery services</h2>
+        <div id="driverList" class="driver-list"></div>
+    </div>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button onclick="window.location.href='jobs.html'">Jobs</button>
+    <button onclick="window.location.href='chat.html'">Chat</button>
+    <button onclick="window.location.href='settings.html'">Settings</button>
+</div>
+
+<script type="module" src="delivery.js"></script>
+</body>
+</html>
+
+

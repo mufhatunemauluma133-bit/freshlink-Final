@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+<title>FreshLink Grow</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    .grow-page {
+        width: min(100%, 1320px);
+        margin: 0 auto;
+        padding: 14px 10px 120px;
+    }
+
+    .grow-hero {
+        display: grid;
+        grid-template-columns: 1.25fr 0.95fr;
+        gap: 16px;
+        margin: 12px auto 16px;
+    }
+
+    .grow-banner,
+    .grow-sidecard,
+    .grow-toolbar,
+    .grow-feed-card,
+    .grow-drawer,
+    .grow-modal-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 26px;
+        box-shadow: var(--shadow-lg);
+        backdrop-filter: blur(18px);
+    }
+
+    .grow-banner {
+        position: relative;
+        overflow: hidden;
+        padding: 24px;
+        min-height: 250px;
+        background:
+            radial-gradient(circle at top left, rgba(34, 197, 94, 0.24), transparent 32%),
+            radial-gradient(circle at 85% 20%, rgba(56, 189, 248, 0.16), transparent 28%),
+            linear-gradient(145deg, rgba(7, 17, 31, 0.96), rgba(11, 20, 33, 0.9));
+    }
+
+    .grow-banner::after {
+        content: "";
+        position: absolute;
+        inset: auto -20% -35% 45%;
+        height: 200px;
+        background: radial-gradient(circle, rgba(251, 191, 36, 0.18), transparent 62%);
+        filter: blur(20px);
+    }
+
+    .grow-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        color: #d1fae5;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .grow-banner h1 {
+        margin: 18px 0 10px;
+        font-size: clamp(32px, 5vw, 52px);
+        line-height: 1;
+        letter-spacing: -0.05em;
+    }
+
+    .grow-banner p {
+        max-width: 700px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.7;
+    }
+
+    .grow-banner-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .grow-sidecard {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .grow-sidecard h3,
+    .grow-toolbar-title,
+    .grow-panel-title {
+        margin: 0;
+        font-size: 18px;
+        color: var(--text);
+    }
+
+    .grow-sidecard p,
+    .grow-tip,
+    .grow-muted,
+    .grow-status-copy {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .grow-category-preview {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .grow-category-block {
+        padding: 12px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        font-size: 13px;
+        color: var(--text);
+    }
+
+    .grow-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px;
+        margin-bottom: 14px;
+    }
+
+    .grow-toolbar-left,
+    .grow-toolbar-right {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .grow-search {
+        min-width: min(100%, 340px);
+        flex: 1 1 320px;
+    }
+
+    .grow-search input {
+        margin-top: 0 !important;
+    }
+
+    .grow-chip-row {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: thin;
+    }
+
+    .grow-chip {
+        width: auto !important;
+        min-height: 40px;
+        padding: 10px 14px;
+        border-radius: 999px !important;
+        border: 1px solid var(--line-strong) !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: var(--text) !important;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .grow-chip.active {
+        background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(20, 184, 166, 0.22)) !important;
+        border-color: rgba(34, 197, 94, 0.24) !important;
+    }
+
+    .grow-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 16px;
+        align-items: start;
+    }
+
+    .grow-feed {
+        display: grid;
+        gap: 16px;
+    }
+
+    .grow-feed-card {
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: minmax(280px, 46%) minmax(0, 1fr);
+        min-height: 420px;
+    }
+
+    .grow-media {
+        position: relative;
+        background: linear-gradient(180deg, rgba(4, 9, 18, 0.98), rgba(7, 17, 31, 0.92));
+        overflow: hidden;
+    }
+
+    .grow-media video {
+        width: 100%;
+        height: 100%;
+        min-height: 420px;
+        object-fit: cover;
+        display: block;
+        background: #020617;
+    }
+
+    .grow-media-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 16px;
+        background: linear-gradient(180deg, rgba(2, 6, 23, 0.18), rgba(2, 6, 23, 0.36));
+        pointer-events: none;
+    }
+
+    .grow-sound-btn {
+        pointer-events: auto;
+        width: auto;
+        min-height: 38px;
+        margin: 0;
+        padding: 8px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 999px;
+        background: rgba(2, 6, 23, 0.6);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 800;
+        backdrop-filter: blur(10px);
+    }
+
+    .grow-sound-btn:hover {
+        background: rgba(2, 6, 23, 0.82);
+    }
+
+    .grow-like-btn.primary-btn {
+        background: linear-gradient(110deg, #f97316, #ec4899) !important;
+        color: #fff !important;
+    }
+
+    .grow-media-top,
+    .grow-media-bottom {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .grow-stat-pill,
+    .grow-category-pill,
+    .grow-attach-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        background: rgba(2, 6, 23, 0.52);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: #f8fafc;
+    }
+
+    .grow-card-body {
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .grow-creator-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .grow-creator-avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        flex-shrink: 0;
+    }
+
+    .grow-creator-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .grow-creator-meta {
+        min-width: 0;
+        flex: 1;
+    }
+
+    .grow-creator-name {
+        font-size: 16px;
+        font-weight: 800;
+        color: var(--text);
+    }
+
+    .grow-creator-subline {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 3px;
+    }
+
+    .grow-title {
+        margin: 0;
+        font-size: 19px;
+        line-height: 1.45;
+        color: var(--text);
+    }
+
+    .grow-hashtags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .grow-tag {
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(20, 184, 166, 0.1);
+        color: #99f6e4;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid rgba(45, 212, 191, 0.18);
+    }
+
+    .grow-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .grow-metric {
+        padding: 12px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .grow-metric-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+    }
+
+    .grow-metric-value {
+        margin-top: 6px;
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--text);
+    }
+
+    .grow-attachment {
+        border-radius: 22px;
+        padding: 14px;
+        background: linear-gradient(145deg, rgba(8, 16, 31, 0.94), rgba(15, 23, 42, 0.88));
+        border: 1px solid rgba(34, 197, 94, 0.18);
+        display: grid;
+        gap: 10px;
+    }
+
+    .grow-attachment-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--text);
+    }
+
+    .grow-attachment-copy {
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .grow-attachment-actions,
+    .grow-action-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .grow-inline-btn {
+        width: auto !important;
+        min-height: 42px;
+        padding: 10px 14px;
+        border-radius: 14px !important;
+    }
+
+    .grow-count-btn {
+        justify-content: space-between;
+        min-width: 116px;
+    }
+
+    .grow-drawer {
+        position: sticky;
+        top: 88px;
+        padding: 16px;
+        display: grid;
+        gap: 14px;
+    }
+
+    .grow-panel-list {
+        display: grid;
+        gap: 10px;
+        max-height: 420px;
+        overflow: auto;
+    }
+
+    .grow-panel-item {
+        padding: 12px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+
+    .grow-panel-item strong {
+        color: var(--text);
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .grow-panel-item small {
+        color: var(--muted);
+    }
+
+    .grow-status,
+    .grow-offline {
+        padding: 14px 16px;
+        border-radius: 18px;
+        margin-bottom: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .grow-status {
+        background: rgba(34, 197, 94, 0.08);
+        color: #d1fae5;
+    }
+
+    .grow-offline {
+        display: none;
+        background: rgba(245, 158, 11, 0.12);
+        color: #fde68a;
+    }
+
+    .grow-empty,
+    .grow-loading,
+    .grow-error {
+        padding: 34px 20px;
+        border-radius: 24px;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px dashed rgba(148, 163, 184, 0.2);
+        color: var(--muted);
+    }
+
+    .grow-modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(2, 6, 23, 0.72);
+        z-index: 1200;
+        padding: 18px;
+    }
+
+    .grow-modal-card {
+        width: min(100%, 760px);
+        max-height: 86vh;
+        padding: 18px;
+        display: grid;
+        gap: 14px;
+        overflow: auto;
+    }
+
+    .grow-modal-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .grow-comment-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    .grow-comment-item {
+        padding: 12px;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(148, 163, 184, 0.08);
+    }
+
+    .grow-comment-form {
+        display: grid;
+        gap: 10px;
+    }
+
+    .grow-moderation-card {
+        padding: 12px;
+        border-radius: 18px;
+        background: rgba(239, 68, 68, 0.06);
+        border: 1px solid rgba(239, 68, 68, 0.16);
+    }
+
+    .grow-pill-alert {
+        background: rgba(239, 68, 68, 0.14);
+        color: #fecaca;
+        border-color: rgba(239, 68, 68, 0.24);
+    }
+
+    @media (max-width: 1080px) {
+        .grow-hero,
+        .grow-shell,
+        .grow-feed-card {
+            grid-template-columns: 1fr;
+        }
+
+        .grow-drawer {
+            position: static;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .grow-page {
+            padding-inline: 7px;
+        }
+
+        .grow-banner,
+        .grow-sidecard,
+        .grow-toolbar,
+        .grow-feed-card,
+        .grow-drawer,
+        .grow-modal-card {
+            border-radius: 22px;
+        }
+
+        .grow-card-body,
+        .grow-banner,
+        .grow-drawer {
+            padding: 16px;
+        }
+
+        .grow-meta-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .grow-media video {
+            min-height: 320px;
+        }
+    }
+</style>
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="topbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <div class="title">FreshLink Grow</div>
+    <div style="display:flex; gap:8px; align-items:center;">
+        <button id="growNotificationsBtn" class="secondary-btn inline-action">Alerts <span id="growUnreadBadge" style="display:none; margin-left:6px; font-size:12px; color:#86efac;">0</span></button>
+        <button id="growUploadShortcut" class="primary-btn inline-action">Upload</button>
+    </div>
+</div>
+
+<div class="page grow-page">
+    <div class="grow-hero">
+        <section class="grow-banner">
+            <div class="grow-kicker">Field stories only</div>
+            <h1>Grow knowledge, trade faster, and learn from real farms.</h1>
+            <p>FreshLink Grow is built for agriculture only: crops, livestock, machinery, irrigation, sustainability, harvest planning, and real farm businesses. Every video can connect directly to a marketplace listing so discovery leads to action.</p>
+            <div class="grow-banner-actions">
+                <button id="growHeroUpload" class="primary-btn inline-action">Share a farming video</button>
+                <button id="growHeroFeed" class="secondary-btn inline-action" onclick="window.location.href='feed.html'">Open marketplace feed</button>
+            </div>
+        </section>
+
+        <aside class="grow-sidecard">
+            <h3>Grow categories</h3>
+            <p>Structured for practical agriculture, not general entertainment.</p>
+            <div class="grow-category-preview">
+                <div class="grow-category-block">Crops and soil health</div>
+                <div class="grow-category-block">Livestock and animal care</div>
+                <div class="grow-category-block">Machinery and workshop tips</div>
+                <div class="grow-category-block">Irrigation and harvesting</div>
+                <div class="grow-category-block">Farm business and logistics</div>
+                <div class="grow-category-block">Sustainability and education</div>
+            </div>
+            <div class="grow-tip">Tip: attach a marketplace listing to a video so viewers can inspect the product, contact you, or buy through your existing FreshLink flow.</div>
+        </aside>
+    </div>
+
+    <div id="growOffline" class="grow-offline">You are offline. FreshLink Grow is showing the last loaded results. Uploading and interactions will resume when your connection returns.</div>
+    <div id="growStatus" class="grow-status" style="display:none;"></div>
+
+    <section class="grow-toolbar">
+        <div class="grow-toolbar-left">
+            <div class="grow-search">
+                <input id="growSearchInput" type="text" placeholder="Search farming topics, hashtags, machinery, irrigation, livestock, crops...">
+            </div>
+        </div>
+        <div class="grow-toolbar-right">
+            <button id="growSavedBtn" class="secondary-btn inline-action">Saved</button>
+            <button id="growFollowingBtn" class="secondary-btn inline-action">Following</button>
+            <button id="growModerationBtn" class="secondary-btn inline-action" style="display:none;">Moderation</button>
+        </div>
+        <div id="growCategoryRail" class="grow-chip-row" aria-label="Grow categories"></div>
+    </section>
+
+    <div class="grow-shell">
+        <main>
+            <div id="growFeed" class="grow-feed"></div>
+        </main>
+
+        <aside class="grow-drawer">
+            <div>
+                <h3 class="grow-panel-title">Notifications</h3>
+                <p class="grow-muted">Likes, comments, follows, and moderation updates.</p>
+            </div>
+            <button id="growMarkReadBtn" class="secondary-btn inline-action">Mark alerts read</button>
+            <div id="growNotificationsList" class="grow-panel-list"></div>
+
+            <div id="growModerationPanel" style="display:none;">
+                <div style="margin-top:6px;">
+                    <h3 class="grow-panel-title">Moderation queue</h3>
+                    <p class="grow-muted">Review reported agriculture content and hide harmful videos.</p>
+                </div>
+                <div id="growModerationList" class="grow-panel-list"></div>
+            </div>
+        </aside>
+    </div>
+</div>
+
+<div id="growCommentsModal" class="grow-modal">
+    <div class="grow-modal-card">
+        <div class="grow-modal-head">
+            <h3 id="growCommentsTitle" class="grow-panel-title">Comments</h3>
+            <button id="growCloseComments" class="secondary-btn inline-action">Close</button>
+        </div>
+        <div id="growCommentsList" class="grow-comment-list"></div>
+        <div class="grow-comment-form">
+            <textarea id="growCommentInput" rows="3" placeholder="Add a practical comment, farming question, or useful advice..."></textarea>
+            <button id="growSendComment" class="primary-btn">Send comment</button>
+        </div>
+    </div>
+</div>
+
+<div id="growReportModal" class="grow-modal">
+    <div class="grow-modal-card">
+        <div class="grow-modal-head">
+            <h3 class="grow-panel-title">Report content</h3>
+            <button id="growCloseReport" class="secondary-btn inline-action">Close</button>
+        </div>
+        <p class="grow-muted">Report spam, abuse, dangerous farming misinformation, or irrelevant content. Admins can review and hide videos.</p>
+        <select id="growReportReason">
+            <option value="Spam or scam">Spam or scam</option>
+            <option value="Dangerous farming misinformation">Dangerous farming misinformation</option>
+            <option value="Harassment or abuse">Harassment or abuse</option>
+            <option value="Off-topic or not agriculture">Off-topic or not agriculture</option>
+            <option value="Graphic or harmful content">Graphic or harmful content</option>
+        </select>
+        <textarea id="growReportDetails" rows="4" placeholder="Explain what is wrong with the video and why it should be reviewed."></textarea>
+        <button id="growSubmitReport" class="danger-btn">Submit report</button>
+    </div>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button class="active" onclick="window.location.href='grow.html'">Grow</button>
+    <button onclick="window.location.href='chat.html'">Chat</button>
+    <button onclick="window.location.href='profile.html'">Profile</button>
+</div>
+
+<script type="module" src="grow.js"></script>
+</body>
+</html>

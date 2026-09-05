@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net https://openrouter.ai; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+<title>World-Class Farming Suite</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    .suite-page { padding: 16px 16px 120px; }
+    .suite-card {
+        background: rgba(10, 18, 34, 0.94);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        border-radius: 18px;
+        padding: 14px;
+        margin-bottom: 12px;
+    }
+    .suite-card h3 {
+        margin: 0 0 8px;
+        color: #f8fafc;
+        font-size: 15px;
+    }
+    .suite-card p {
+        margin: 0 0 10px;
+        color: #94a3b8;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+    .suite-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    .suite-chip {
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: rgba(15, 23, 42, 0.92);
+        color: #e2e8f0;
+        padding: 10px;
+        font-size: 12px;
+    }
+    .suite-output {
+        margin-top: 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        background: rgba(15, 23, 42, 0.92);
+        padding: 10px;
+        color: #cbd5e1;
+        font-size: 12px;
+        white-space: pre-wrap;
+        line-height: 1.5;
+    }
+    .suite-row {
+        display: grid;
+        gap: 8px;
+    }
+</style>
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="topbar">
+    <button onclick="window.location.href='menu.html'">Back</button>
+    <div class="title">World-Class Suite</div>
+    <div style="width: 30px;"></div>
+</div>
+
+<div class="page suite-page">
+    <div class="suite-card">
+        <h3>1) Trust and Safety</h3>
+        <p>Escrow-readiness and dispute support to protect buyers and farmers.</p>
+        <div class="suite-row">
+            <input id="escrowOrderRef" placeholder="Order reference (e.g. ORD-2026-001)">
+            <input id="escrowAmount" placeholder="Order amount (R)">
+            <button class="primary-btn" onclick="calculateEscrowPlan()">Generate escrow plan</button>
+            <textarea id="disputeReason" rows="2" placeholder="If dispute happens, describe reason"></textarea>
+            <textarea id="evidenceNote" rows="2" placeholder="Optional evidence note (photos, timestamps, messages)"></textarea>
+            <button class="secondary-btn" onclick="saveDispute()">Save dispute draft</button>
+            <div id="trustOutput" class="suite-output">No trust plan generated yet.</div>
+            <div id="trustHistory" class="suite-output">No trust records loaded yet.</div>
+        </div>
+    </div>
+
+    <div class="suite-card">
+        <h3>2) Market Intelligence and Profitability</h3>
+        <p>Estimate profitable products by location and expected margin.</p>
+        <div class="suite-row">
+            <input id="profitLocation" placeholder="Location (e.g. Limpopo)">
+            <input id="profitProduct" placeholder="Product (e.g. Tomatoes)">
+            <input id="profitCost" placeholder="Estimated cost per unit (R)">
+            <input id="profitPrice" placeholder="Estimated selling price per unit (R)">
+            <button class="primary-btn" onclick="runProfitLab()">Run profitability lab</button>
+            <div id="profitOutput" class="suite-output">No profitability results yet.</div>
+        </div>
+    </div>
+
+    <div class="suite-card">
+        <h3>3) Agronomy Planner</h3>
+        <p>Simple crop action checklist by stage.</p>
+        <div class="suite-grid">
+            <button class="suite-chip" onclick="showAgronomy('pre-planting')">Pre-planting</button>
+            <button class="suite-chip" onclick="showAgronomy('planting')">Planting</button>
+            <button class="suite-chip" onclick="showAgronomy('growth')">Growth</button>
+            <button class="suite-chip" onclick="showAgronomy('harvest')">Harvest</button>
+        </div>
+        <div id="agronomyOutput" class="suite-output">Select a stage to view actions.</div>
+    </div>
+
+    <div class="suite-card">
+        <h3>4) AI Advisor and Image Generation</h3>
+        <p>Use your AI farm tools for questions and farm visuals.</p>
+        <button class="primary-btn" onclick="window.location.href='ai-farm.html'">Open AI Farm Assistant</button>
+    </div>
+
+    <div class="suite-card">
+        <h3>5) Logistics Optimizer</h3>
+        <p>Estimate route costs and delivery pricing strategy.</p>
+        <div class="suite-row">
+            <input id="distanceKm" placeholder="Distance (km)">
+            <input id="costPer100" placeholder="Cost per 100km (R)">
+            <button class="primary-btn" onclick="estimateLogistics()">Estimate delivery cost</button>
+            <div id="logisticsOutput" class="suite-output">No logistics estimate yet.</div>
+        </div>
+    </div>
+
+    <div class="suite-card">
+        <h3>6) Finance and Cashflow Desk</h3>
+        <p>Track basic monthly income and expenses.</p>
+        <div class="suite-row">
+            <input id="monthlySales" placeholder="Monthly sales (R)">
+            <input id="monthlyCosts" placeholder="Monthly costs (R)">
+            <button class="primary-btn" onclick="runCashflow()">Calculate cashflow</button>
+            <div id="financeOutput" class="suite-output">No finance summary yet.</div>
+        </div>
+    </div>
+
+    <div class="suite-card">
+        <h3>7) Cooperative and B2B Readiness</h3>
+        <p>Prepare group selling and long-term buyer contracts.</p>
+        <div class="suite-output">Action list:
+1. Aggregate supply from nearby farmers.
+2. Define quality grades and packaging.
+3. Lock recurring buyers (retailers, schools, hotels).
+4. Use weekly delivery schedule and penalty clauses.
+5. Track fulfillment performance each month.</div>
+    </div>
+
+    <div class="suite-card">
+        <h3>8) Offline and Low-Data</h3>
+        <p>Enable resilient operations when network is weak.</p>
+        <div class="suite-output">Checklist:
+- Keep essential actions simple (post, chat, payment status).
+- Save drafts locally when internet is unstable.
+- Sync when connection returns.
+- Use compressed media to reduce data costs.</div>
+    </div>
+
+    <div class="suite-card">
+        <h3>9) Product Quality and Reliability</h3>
+        <p>Publish with confidence and monitor quality.</p>
+        <div class="suite-output">Release checklist:
+- Authentication and RLS validated.
+- Pricing and listing flows tested.
+- Delivery and rating tested.
+- Error monitoring and backup plan prepared.</div>
+    </div>
+
+    <div class="suite-card">
+        <h3>10) Academy and Ecosystem Growth</h3>
+        <p>Train farmers and build partner network effects.</p>
+        <div class="suite-output">Growth plan:
+- Weekly farmer tips and mini-guides.
+- Referral incentives for farmers and buyers.
+- Partner integrations: logistics, finance, weather.
+- Local language support rollout.</div>
+    </div>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button onclick="window.location.href='search.html'">Search</button>
+    <button onclick="window.location.href='profile.html'">Profile</button>
+    <button class="active" onclick="window.location.href='menu.html'">More</button>
+</div>
+
+<script type="module">
+import { supabase } from "./supabase.js";
+
+function num(value) {
+    const n = Number(value || 0);
+    return Number.isFinite(n) ? n : 0;
+}
+
+function currency(value) {
+    return `R${num(value).toFixed(2)}`;
+}
+
+let latestEscrowPlanId = null;
+
+function setTrustOutput(message) {
+    const trustOutput = document.getElementById('trustOutput');
+    if (trustOutput) trustOutput.textContent = message;
+}
+
+function setTrustHistory(message) {
+    const trustHistory = document.getElementById('trustHistory');
+    if (trustHistory) trustHistory.textContent = message;
+}
+
+async function loadTrustHistory() {
+    try {
+        const { data: plans, error: plansError } = await supabase
+            .from('escrow_plans')
+            .select('id,order_ref,amount,status,created_at')
+            .order('created_at', { ascending: false })
+            .limit(3);
+
+        const { data: disputes, error: disputesError } = await supabase
+            .from('dispute_tickets')
+            .select('id,reason,status,created_at')
+            .order('created_at', { ascending: false })
+            .limit(3);
+
+        if (!plansError && !disputesError) {
+            const lines = ["Recent trust records:"];
+
+            (plans || []).forEach((item) => {
+                lines.push(`Escrow ${item.order_ref} • ${currency(item.amount)} • ${item.status}`);
+            });
+
+            (disputes || []).forEach((item) => {
+                lines.push(`Dispute ${item.id.slice(0, 8)} • ${item.status} • ${item.reason.substring(0, 60)}`);
+            });
+
+            if (lines.length === 1) {
+                setTrustHistory('No trust records yet. Create an escrow plan to begin.');
+            } else {
+                setTrustHistory(lines.join('\n'));
+            }
+
+            return;
+        }
+    } catch {
+        // Fall back to local storage.
+    }
+
+    const localEscrow = JSON.parse(localStorage.getItem('freshlink_escrow_plans') || '[]');
+    const localDisputes = JSON.parse(localStorage.getItem('freshlink_disputes') || '[]');
+    const lines = ["Recent trust records (local mode):"];
+
+    localEscrow.slice(0, 3).forEach((item) => {
+        lines.push(`Escrow ${item.order_ref} • ${currency(item.amount)} • ${item.status}`);
+    });
+
+    localDisputes.slice(0, 3).forEach((item) => {
+        lines.push(`Dispute ${String(item.id || '').slice(0, 8)} • ${item.status || 'open'} • ${String(item.reason || '').substring(0, 60)}`);
+    });
+
+    if (lines.length === 1) {
+        setTrustHistory('No trust records yet.');
+    } else {
+        setTrustHistory(lines.join('\n'));
+    }
+}
+
+window.calculateEscrowPlan = async function () {
+    const orderRefInput = document.getElementById('escrowOrderRef');
+    const amount = num(document.getElementById('escrowAmount').value);
+    const orderRef = String(orderRefInput?.value || '').trim() || `ORD-${Date.now()}`;
+
+    if (amount <= 0) {
+        setTrustOutput('Enter a valid order amount.');
+        return;
+    }
+
+    const deposit = amount * 0.3;
+    const release = amount * 0.7;
+
+    try {
+        const { data: authData } = await supabase.auth.getUser();
+        const user = authData?.user;
+        if (!user?.id) {
+            throw new Error('Sign in required');
+        }
+
+        const payload = {
+            created_by: user.id,
+            order_ref: orderRef.substring(0, 80),
+            amount,
+            deposit_amount: deposit,
+            release_amount: release,
+            status: 'draft'
+        };
+
+        const { data, error } = await supabase
+            .from('escrow_plans')
+            .insert([payload])
+            .select('id')
+            .single();
+
+        if (error) throw error;
+        latestEscrowPlanId = data?.id || null;
+
+        setTrustOutput(`Escrow plan saved in database:\n- Order ref: ${orderRef}\n- Buyer deposit at order: ${currency(deposit)}\n- Release on delivery confirmation: ${currency(release)}\n- Dispute window: 48 hours after delivery\n- Evidence: photos, chat history, delivery status`);
+        await loadTrustHistory();
+        return;
+    } catch {
+        const localEscrow = JSON.parse(localStorage.getItem('freshlink_escrow_plans') || '[]');
+        const localPlan = {
+            id: `ESC-${Date.now()}`,
+            order_ref: orderRef.substring(0, 80),
+            amount,
+            deposit_amount: deposit,
+            release_amount: release,
+            status: 'draft',
+            created_at: new Date().toISOString()
+        };
+        localEscrow.unshift(localPlan);
+        localStorage.setItem('freshlink_escrow_plans', JSON.stringify(localEscrow));
+        latestEscrowPlanId = localPlan.id;
+
+        setTrustOutput(`Escrow plan saved locally (database not ready yet):\n- Order ref: ${orderRef}\n- Buyer deposit at order: ${currency(deposit)}\n- Release on delivery confirmation: ${currency(release)}\n- Dispute window: 48 hours after delivery\n- Evidence: photos, chat history, delivery status`);
+        await loadTrustHistory();
+    }
+};
+
+window.saveDispute = async function () {
+    const reason = String(document.getElementById('disputeReason').value || '').trim();
+    const evidenceNote = String(document.getElementById('evidenceNote')?.value || '').trim();
+
+    if (!reason) {
+        setTrustOutput('Add a dispute reason first.');
+        return;
+    }
+
+    try {
+        const { data: authData } = await supabase.auth.getUser();
+        const user = authData?.user;
+        if (!user?.id) {
+            throw new Error('Sign in required');
+        }
+
+        const payload = {
+            created_by: user.id,
+            escrow_plan_id: latestEscrowPlanId,
+            reason: reason.substring(0, 1000),
+            evidence_note: evidenceNote.substring(0, 1000),
+            status: 'open'
+        };
+
+        const { error } = await supabase.from('dispute_tickets').insert([payload]);
+        if (error) throw error;
+
+        setTrustOutput('Dispute ticket saved in database and opened for review.');
+        await loadTrustHistory();
+        return;
+    } catch {
+        const list = JSON.parse(localStorage.getItem('freshlink_disputes') || '[]');
+        list.unshift({
+            id: `DSP-${Date.now()}`,
+            escrow_plan_id: latestEscrowPlanId,
+            reason: reason.substring(0, 1000),
+            evidence_note: evidenceNote.substring(0, 1000),
+            status: 'open',
+            createdAt: new Date().toISOString()
+        });
+        localStorage.setItem('freshlink_disputes', JSON.stringify(list));
+        setTrustOutput('Dispute draft saved locally. Run latest schema for full backend workflow.');
+        await loadTrustHistory();
+    }
+};
+
+window.runProfitLab = function () {
+    const location = String(document.getElementById('profitLocation').value || '').trim() || 'Your region';
+    const product = String(document.getElementById('profitProduct').value || '').trim() || 'Selected crop';
+    const cost = num(document.getElementById('profitCost').value);
+    const price = num(document.getElementById('profitPrice').value);
+
+    if (cost <= 0 || price <= 0) {
+        document.getElementById('profitOutput').textContent = 'Enter valid cost and price values.';
+        return;
+    }
+
+    const margin = price - cost;
+    const marginPct = cost > 0 ? (margin / cost) * 100 : 0;
+    const rating = marginPct >= 40 ? 'High potential' : marginPct >= 20 ? 'Moderate potential' : 'Low potential';
+
+    document.getElementById('profitOutput').textContent = `Location: ${location}\nProduct: ${product}\nCost per unit: ${currency(cost)}\nSelling price per unit: ${currency(price)}\nEstimated margin: ${currency(margin)} (${marginPct.toFixed(1)}%)\nVerdict: ${rating}\nTip: secure buyers before scaling production.`;
+};
+
+window.showAgronomy = function (stage) {
+    const plans = {
+        'pre-planting': 'Pre-planting actions:\n1. Soil test\n2. Input budget\n3. Seed variety selection\n4. Irrigation check',
+        'planting': 'Planting actions:\n1. Correct spacing\n2. Starter fertilizer\n3. Early weed control\n4. Germination monitoring',
+        'growth': 'Growth actions:\n1. Top dressing\n2. Pest scouting 2x weekly\n3. Water schedule\n4. Disease prevention spray plan',
+        'harvest': 'Harvest actions:\n1. Quality grading\n2. Packaging prep\n3. Buyer confirmation\n4. Delivery scheduling'
+    };
+    document.getElementById('agronomyOutput').textContent = plans[stage] || 'No plan available.';
+};
+
+window.estimateLogistics = function () {
+    const distance = num(document.getElementById('distanceKm').value);
+    const cost100 = num(document.getElementById('costPer100').value);
+
+    if (distance <= 0 || cost100 <= 0) {
+        document.getElementById('logisticsOutput').textContent = 'Enter valid distance and cost values.';
+        return;
+    }
+
+    const totalCost = (distance / 100) * cost100;
+    const recommendedPrice = totalCost * 1.2;
+
+    document.getElementById('logisticsOutput').textContent = `Estimated transport cost: ${currency(totalCost)}\nRecommended delivery charge (20% buffer): ${currency(recommendedPrice)}\nTip: pool nearby orders to reduce per-order cost.`;
+};
+
+window.runCashflow = function () {
+    const sales = num(document.getElementById('monthlySales').value);
+    const costs = num(document.getElementById('monthlyCosts').value);
+    const net = sales - costs;
+
+    const signal = net > 0 ? 'Positive cashflow' : net === 0 ? 'Break-even' : 'Negative cashflow';
+    document.getElementById('financeOutput').textContent = `Monthly sales: ${currency(sales)}\nMonthly costs: ${currency(costs)}\nNet cashflow: ${currency(net)}\nStatus: ${signal}\nAction: reduce high-cost inputs and improve contract pricing.`;
+};
+
+loadTrustHistory();
+</script>
+</body>
+</html>

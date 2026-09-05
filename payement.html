@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+
+<title>Checkout</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    .checkout-box { padding: 24px 20px 22px; border-radius: 24px; background: #081220; border: 1px solid rgba(148,163,184,0.12); }
+    .checkout-box h2 { margin-top:0; margin-bottom:10px; }
+    .checkout-box p { color:#cbd5e1; margin:0 0 16px; }
+    .farm-summary { margin-bottom: 16px; border:1px solid rgba(148,163,184,0.12); border-radius: 16px; padding: 16px; background: #0f172a; }
+    .farm-summary h3 { margin:0 0 12px; font-size: 16px; color:#f8fafc; }
+    .farm-summary ul { margin:0; padding:0; list-style:none; }
+    .farm-summary li { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(148,163,184,0.08); color:#cbd5e1; }
+    .farm-summary li:last-child { border-bottom:none; }
+    .farm-summary .item-label { color:#94a3b8; }
+    .farm-summary .farm-total { margin-top:12px; font-weight:700; color:#f8fafc; }
+    .summary-footer { display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:12px; margin-top:18px; }
+    .summary-total { font-size:18px; font-weight:700; color:#fff; }
+    .checkout-button { width:100%; max-width:280px; padding:14px 18px; border-radius:14px; border:none; font-size:15px; font-weight:700; background:#22c55e; color:#fff; cursor:pointer; }
+    .checkout-button:disabled { opacity:.56; cursor:not-allowed; }
+    .summary-note { margin-top:14px; color:#94a3b8; font-size:13px; }
+    .empty-grid { padding:18px; color:#94a3b8; text-align:center; }
+    .bank-transfer { margin-top: 16px; border:1px solid rgba(148,163,184,0.12); border-radius: 16px; padding: 16px; background:#0f172a; }
+    .bank-transfer h3 { margin:0 0 10px; font-size:16px; color:#f8fafc; }
+    .bank-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px; }
+    .bank-grid input { margin-top:0; }
+    .bank-note { margin-top:10px; color:#94a3b8; font-size:12px; }
+
+    @media (max-width: 700px) {
+        .summary-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .checkout-button {
+            max-width: 100%;
+        }
+
+        .bank-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (min-width: 960px) {
+        .page {
+            max-width: 920px;
+        }
+    }
+</style>
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="page">
+    <div class="topbar">
+        <button onclick="window.location.href='home.html'">←</button>
+        <div class="title">Checkout</div>
+        <div style="width: 30px;"></div>
+    </div>
+
+    <div class="box checkout-box">
+        <h2>🛒 Order Summary</h2>
+        <p>Review your cart and pay each farm separately. The total below shows the combined amount for all farms.</p>
+        <div id="checkoutStatus" class="message" style="display:none;"></div>
+        <div id="cartSummary" class="cart-summary">
+            <div class="empty-grid">No products in cart yet. Add farm products from the marketplace first.</div>
+        </div>
+        <div id="deliverySection" class="farm-summary" style="display:none; margin-top:16px;">
+            <h3>🚚 Delivery option</h3>
+            <div id="deliveryDetails"></div>
+            <button class="secondary-btn" onclick="window.location.href='delivery.html'">Choose or register driver</button>
+            <button class="primary-btn" onclick="window.location.href='tracking.html'">Track driver</button>
+        </div>
+        <div class="bank-transfer">
+            <h3>🏦 Bank transfer details</h3>
+            <p style="margin:0 0 12px; color:#cbd5e1;">Pay directly from one bank account to another. Enter your details and the seller bank details before paying.</p>
+            <div class="bank-grid">
+                <input id="payerBankName" type="text" placeholder="Your bank name">
+                <input id="payerAccountName" type="text" placeholder="Your account holder name">
+                <input id="payerAccountNumber" type="text" inputmode="numeric" placeholder="Your account number">
+                <input id="payerBranchCode" type="text" inputmode="numeric" placeholder="Your branch code">
+                <input id="recipientBankName" type="text" placeholder="Seller bank name">
+                <input id="recipientAccountName" type="text" placeholder="Seller account holder name">
+                <input id="recipientAccountNumber" type="text" inputmode="numeric" placeholder="Seller account number">
+                <input id="recipientBranchCode" type="text" inputmode="numeric" placeholder="Seller branch code">
+                <input id="transferReference" type="text" placeholder="Transfer reference (e.g. ORDER-2026)">
+            </div>
+            <div class="bank-note">For safety, share payment confirmation in chat after transfer. Sensitive details are masked in local records.</div>
+        </div>
+        <div class="summary-footer">
+            <div class="summary-total">Total due: <span id="checkoutTotal">R0.00</span></div>
+            <button id="payAllBtn" class="checkout-button" onclick="payAll()">Pay All Farms</button>
+        </div>
+        <p class="summary-note">Each farm is charged separately below so you can pay one farmer at a time if your order contains products from multiple farms.</p>
+    </div>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button onclick="window.location.href='jobs.html'">Jobs</button>
+    <button onclick="window.location.href='chat.html'">Chat</button>
+    <button onclick="window.location.href='settings.html'">Settings</button>
+</div>
+
+<script type="module" src="payment.js"></script>
+</body>
+</html>
+
+

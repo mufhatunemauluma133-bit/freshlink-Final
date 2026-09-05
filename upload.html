@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+
+<title>Upload Product</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<script type="module" src="app.js"></script>
+
+<div class="upload-box">
+    <h2> Upload Farm Product</h2>
+
+    <input id="title" placeholder="Product name">
+    <input id="farmName" placeholder="Farm name">
+    <input id="location" placeholder="Location name">
+    <button class="secondary-btn" onclick="getLocation()">ðŸ“ Get My Location</button>
+    <p id="locationMsg" style="font-size: 12px; margin: 8px 0; color: #94a3b8;"></p>
+    <div style="margin-top:12px; padding:12px; border-radius:16px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:12px; color:#94a3b8; margin-bottom:8px;">Choose listing category</div>
+        <div style="display:flex; gap:8px;">
+            <button type="button" id="categoryProduceBtn" class="primary-btn inline-action" onclick="setListingType('produce')">ðŸŒ± Produce</button>
+            <button type="button" id="categoryLivestockBtn" class="secondary-btn inline-action" onclick="setListingType('livestock')">ðŸ„ Animals</button>
+        </div>
+    </div>
+    <select id="listingType" style="display:none;">
+        <option value="produce">Produce / Crop</option>
+        <option value="livestock">Livestock</option>
+    </select>
+    <input id="amount" placeholder="Quantity / amount (e.g. 10 kg)">
+    <input id="unitPrice" placeholder="Price per unit (R each)">
+    <input id="price" placeholder="Total price (R)">
+    <input id="contact" placeholder="WhatsApp number">
+    <input type="file" id="image" accept="image/png,image/jpeg,image/webp">
+    <input type="file" id="video" accept="video/mp4,video/webm,video/quicktime" style="display:none;">
+    <p id="mediaHint" style="font-size: 12px; margin: 8px 0 0; color: #94a3b8;">Clear product photos are required. Livestock listings also need one HD video.</p>
+
+    <button class="primary-btn" onclick="uploadPost()">Post Product</button>
+
+    <p id="msg"></p>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button class="active" onclick="window.location.href='upload.html'">Upload</button>
+    <button onclick="window.location.href='chat.html'">Chat</button>
+    <button onclick="window.location.href='settings.html'">Settings</button>
+</div>
+
+<script type="module" src="upload.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+
+<title>Compare Plans</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    :root {
+        --plans-title: #f8fafc;
+        --plans-copy: #cbd5e1;
+        --plans-card-bg: #0b1220;
+        --plans-card-border: rgba(148, 163, 184, 0.16);
+        --plans-price: #86efac;
+        --plans-note: #94a3b8;
+        --plans-table-bg: #081220;
+        --plans-table-head: rgba(15, 23, 42, 0.88);
+    }
+
+    html[data-theme="light"] {
+        --plans-title: #0f172a;
+        --plans-copy: #334155;
+        --plans-card-bg: #ffffff;
+        --plans-card-border: rgba(15, 23, 42, 0.12);
+        --plans-price: #166534;
+        --plans-note: #475569;
+        --plans-table-bg: #ffffff;
+        --plans-table-head: rgba(226, 232, 240, 0.9);
+    }
+
+    .plans-wrap {
+        padding: 18px 0 24px;
+        display: grid;
+        gap: 14px;
+    }
+
+    .plans-intro {
+        padding: 16px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(14, 116, 144, 0.18), rgba(16, 185, 129, 0.12));
+        border: 1px solid rgba(125, 211, 252, 0.24);
+    }
+
+    .plans-intro h2 {
+        margin: 0 0 8px;
+        color: var(--plans-title);
+    }
+
+    .plans-intro p {
+        margin: 0;
+        color: var(--plans-copy);
+        font-size: 13px;
+    }
+
+    .plans-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .plan-card {
+        border-radius: 20px;
+        padding: 16px;
+        border: 1px solid var(--plans-card-border);
+        background: var(--plans-card-bg);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 355px;
+    }
+
+    .plan-card h3 {
+        margin: 0;
+        font-size: 18px;
+        color: var(--plans-title);
+    }
+
+    .plan-price {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--plans-price);
+    }
+
+    .plan-note {
+        color: var(--plans-note);
+        font-size: 13px;
+        min-height: 36px;
+    }
+
+    .plan-features {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 7px;
+        color: var(--plans-copy);
+        font-size: 13px;
+    }
+
+    .plan-features li {
+        line-height: 1.35;
+    }
+
+    .plan-actions {
+        margin-top: auto;
+        display: grid;
+        gap: 8px;
+    }
+
+    .plan-popular {
+        border-color: rgba(34, 197, 94, 0.45);
+        background: linear-gradient(145deg, rgba(34, 197, 94, 0.14), rgba(15, 118, 110, 0.16));
+        box-shadow: 0 10px 24px rgba(16, 185, 129, 0.14);
+    }
+
+    .plan-vvip {
+        border-color: rgba(251, 191, 36, 0.46);
+        background: linear-gradient(145deg, rgba(251, 191, 36, 0.14), rgba(249, 115, 22, 0.12));
+    }
+
+    .plan-tag {
+        display: inline-flex;
+        align-items: center;
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 5px 9px;
+        background: rgba(148, 163, 184, 0.18);
+        color: #e2e8f0;
+        width: fit-content;
+    }
+
+    .plan-tag.popular {
+        background: rgba(34, 197, 94, 0.22);
+        color: #86efac;
+    }
+
+    .plan-tag.vvip {
+        background: rgba(251, 191, 36, 0.22);
+        color: #fde68a;
+    }
+
+    .matrix {
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        overflow: hidden;
+        background: var(--plans-table-bg);
+    }
+
+    .matrix table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+
+    .matrix th,
+    .matrix td {
+        border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+        padding: 10px 12px;
+        text-align: left;
+        color: var(--plans-copy);
+    }
+
+    .matrix th {
+        color: var(--plans-title);
+        background: var(--plans-table-head);
+    }
+
+    .matrix td.ok {
+        color: #86efac;
+        font-weight: 700;
+    }
+
+    .matrix td.no {
+        color: #fda4af;
+    }
+
+    @media (max-width: 1000px) {
+        .plans-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 720px) {
+        .plans-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .plan-card {
+            min-height: auto;
+        }
+
+        .matrix {
+            overflow-x: auto;
+        }
+
+        .matrix table {
+            min-width: 620px;
+        }
+    }
+</style>
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="page">
+    <div class="topbar">
+        <button onclick="window.location.href='settings.html'">Back</button>
+        <div class="title">Compare Plans</div>
+        <div style="width:30px;"></div>
+    </div>
+
+    <div class="plans-wrap">
+        <div class="plans-intro">
+            <h2>Choose your FreshLink level</h2>
+            <p>Each plan unlocks more value than the one below it, so you can scale from basic browsing to full VVIP buyer and seller power.</p>
+        </div>
+
+        <div class="plans-grid">
+            <article class="plan-card">
+                <span class="plan-tag">Starter</span>
+                <h3>Free</h3>
+                <div class="plan-price">R0/month</div>
+                <div class="plan-note">Best for trying FreshLink basics.</div>
+                <ul class="plan-features">
+                    <li>59-minute usage window</li>
+                    <li>Basic browsing and listings</li>
+                    <li>No live market pricing</li>
+                    <li>No order tracking</li>
+                    <li>No verified badge</li>
+                </ul>
+                <div class="plan-actions">
+                    <button class="secondary-btn" onclick="goToSettings('free')">Continue Free</button>
+                </div>
+            </article>
+
+            <article class="plan-card">
+                <span class="plan-tag">Upgrade</span>
+                <h3>Premium</h3>
+                <div class="plan-price">R99/month</div>
+                <div class="plan-note">For users who need smart market intelligence daily.</div>
+                <ul class="plan-features">
+                    <li>Unlimited usage time</li>
+                    <li>Live stock market prices</li>
+                    <li>Advanced feature unlock</li>
+                    <li>Priority product insights</li>
+                    <li>Faster plan support</li>
+                </ul>
+                <div class="plan-actions">
+                    <button class="primary-btn" onclick="goToSettings('premium')">Choose Premium</button>
+                </div>
+            </article>
+
+            <article class="plan-card plan-popular">
+                <span class="plan-tag popular">Most Popular</span>
+                <h3>Premium Plus</h3>
+                <div class="plan-price">R449/month</div>
+                <div class="plan-note">For serious farm commerce and trusted operations.</div>
+                <ul class="plan-features">
+                    <li>Everything in Premium</li>
+                    <li>Order tracking unlocked</li>
+                    <li>Verified badge included</li>
+                    <li>Higher trust visibility</li>
+                    <li>Stronger conversion tools</li>
+                </ul>
+                <div class="plan-actions">
+                    <button class="primary-btn" onclick="goToSettings('premium_plus')">Choose Premium Plus</button>
+                </div>
+            </article>
+
+            <article class="plan-card plan-vvip">
+                <span class="plan-tag vvip">Best Plan</span>
+                <h3>VVIP Premium</h3>
+                <div class="plan-price">R1,299/month</div>
+                <div class="plan-note">For top-tier growth, visibility, and premium priority.</div>
+                <ul class="plan-features">
+                    <li>Everything in Premium Plus</li>
+                    <li>Top account priority tier</li>
+                    <li>Maximum marketplace visibility</li>
+                    <li>Highest-value member profile</li>
+                    <li>VVIP service experience</li>
+                </ul>
+                <div class="plan-actions">
+                    <button class="primary-btn" onclick="goToSettings('vvip_premium')">Choose VVIP Premium</button>
+                </div>
+            </article>
+        </div>
+
+        <div class="matrix">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Free</th>
+                        <th>Premium</th>
+                        <th>Premium Plus</th>
+                        <th>VVIP Premium</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Monthly price</td>
+                        <td>R0</td>
+                        <td>R99</td>
+                        <td>R449</td>
+                        <td>R1,299</td>
+                    </tr>
+                    <tr>
+                        <td>Usage time</td>
+                        <td>59-minute limit</td>
+                        <td class="ok">Unlimited</td>
+                        <td class="ok">Unlimited</td>
+                        <td class="ok">Unlimited</td>
+                    </tr>
+                    <tr>
+                        <td>Live stock market prices</td>
+                        <td class="no">No</td>
+                        <td class="ok">Yes</td>
+                        <td class="ok">Yes</td>
+                        <td class="ok">Yes</td>
+                    </tr>
+                    <tr>
+                        <td>Order tracking</td>
+                        <td class="no">No</td>
+                        <td class="no">No</td>
+                        <td class="ok">Yes</td>
+                        <td class="ok">Yes</td>
+                    </tr>
+                    <tr>
+                        <td>Verified badge</td>
+                        <td class="no">No</td>
+                        <td class="no">No</td>
+                        <td class="ok">Yes</td>
+                        <td class="ok">Yes</td>
+                    </tr>
+                    <tr>
+                        <td>Visibility and priority</td>
+                        <td>Basic</td>
+                        <td>Improved</td>
+                        <td>High</td>
+                        <td class="ok">Maximum</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button onclick="window.location.href='jobs.html'">Jobs</button>
+    <button onclick="window.location.href='chat.html'">Chat</button>
+    <button class="active" onclick="window.location.href='settings.html'">Settings</button>
+</div>
+
+<script>
+    function goToSettings(plan) {
+        var normalizedPlan = String(plan || 'free').toLowerCase();
+        window.location.href = 'settings.html?upgrade=1&plan=' + encodeURIComponent(normalizedPlan);
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://cdn.jsdelivr.net; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+<title>Upload to FreshLink Grow</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    .grow-upload-page {
+        width: min(100%, 1180px);
+        margin: 0 auto;
+        padding: 16px 10px 120px;
+    }
+
+    .grow-upload-shell {
+        display: grid;
+        grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+        gap: 16px;
+    }
+
+    .grow-upload-card,
+    .grow-preview-card,
+    .grow-upload-guidance {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        padding: 22px;
+        box-shadow: var(--shadow-lg);
+        backdrop-filter: blur(18px);
+    }
+
+    .grow-upload-card h1,
+    .grow-preview-card h3,
+    .grow-upload-guidance h3 {
+        margin: 0 0 10px;
+        color: var(--text);
+    }
+
+    .grow-upload-card p,
+    .grow-preview-card p,
+    .grow-upload-guidance p,
+    .grow-upload-guidance li {
+        color: var(--muted);
+        line-height: 1.65;
+    }
+
+    .grow-upload-grid {
+        display: grid;
+        gap: 12px;
+    }
+
+    .grow-upload-grid.two {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grow-upload-label {
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+
+    .grow-file-box {
+        padding: 14px;
+        border-radius: 22px;
+        border: 1px dashed rgba(148, 163, 184, 0.26);
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .grow-file-box input {
+        margin-top: 10px;
+    }
+
+    .grow-upload-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .grow-preview-stage {
+        display: grid;
+        gap: 12px;
+    }
+
+    .grow-preview-video,
+    .grow-preview-image {
+        width: 100%;
+        border-radius: 24px;
+        overflow: hidden;
+        background: rgba(2, 6, 23, 0.88);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        min-height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--muted);
+    }
+
+    .grow-preview-video video,
+    .grow-preview-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .grow-listing-preview {
+        padding: 14px;
+        border-radius: 22px;
+        border: 1px solid rgba(34, 197, 94, 0.18);
+        background: linear-gradient(145deg, rgba(8, 16, 31, 0.9), rgba(15, 23, 42, 0.82));
+    }
+
+    .grow-upload-guidance ul {
+        margin: 0;
+        padding-left: 20px;
+    }
+
+    @media (max-width: 980px) {
+        .grow-upload-shell {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 700px) {
+        .grow-upload-page {
+            padding-inline: 7px;
+        }
+
+        .grow-upload-card,
+        .grow-preview-card,
+        .grow-upload-guidance {
+            border-radius: 22px;
+            padding: 16px;
+        }
+
+        .grow-upload-grid.two {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="topbar">
+    <button onclick="window.location.href='grow.html'">Back</button>
+    <div class="title">Upload to FreshLink Grow</div>
+    <div style="width:30px;"></div>
+</div>
+
+<div class="page grow-upload-page">
+    <div class="grow-upload-shell">
+        <section class="grow-upload-card">
+            <h1>Publish a real farming story</h1>
+            <p>Share short agriculture videos with practical value. Attach a marketplace listing to connect the video directly to produce, livestock, equipment, or services already inside FreshLink.</p>
+
+            <div class="grow-upload-grid">
+                <div>
+                    <div class="grow-upload-label">Caption</div>
+                    <textarea id="growCaption" rows="4" placeholder="Describe what is happening in the video, what farmers can learn, and what product or service is attached."></textarea>
+                </div>
+                <div class="grow-upload-grid two">
+                    <div>
+                        <div class="grow-upload-label">Hashtags</div>
+                        <input id="growHashtags" type="text" placeholder="#maize #irrigation #harvest #livestock">
+                    </div>
+                    <div>
+                        <div class="grow-upload-label">Location</div>
+                        <input id="growLocation" type="text" placeholder="Farm district, town, or province">
+                    </div>
+                </div>
+                <div class="grow-upload-grid two">
+                    <div>
+                        <div class="grow-upload-label">Category</div>
+                        <select id="growCategory">
+                            <option value="crops">Crops and soil</option>
+                            <option value="livestock">Livestock</option>
+                            <option value="machinery">Machinery and workshop</option>
+                            <option value="irrigation">Irrigation</option>
+                            <option value="harvesting">Harvesting</option>
+                            <option value="education">Agricultural education</option>
+                            <option value="sustainability">Sustainability</option>
+                            <option value="business">Farm business</option>
+                            <option value="services">Farm services</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="grow-upload-label">Visibility</div>
+                        <select id="growVisibility">
+                            <option value="public">Public to all FreshLink users</option>
+                            <option value="followers">Followers only</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <div class="grow-upload-label">Attach a marketplace listing</div>
+                    <select id="growAttachedListing">
+                        <option value="">No attached listing</option>
+                    </select>
+                </div>
+                <div class="grow-upload-grid two">
+                    <div class="grow-file-box">
+                        <div class="grow-upload-label">Thumbnail image</div>
+                        <p>Use a clear frame that shows the crop, livestock, or equipment instantly.</p>
+                        <input id="growThumbnailFile" type="file" accept="image/png,image/jpeg,image/webp">
+                    </div>
+                    <div class="grow-file-box">
+                        <div class="grow-upload-label">Video file</div>
+                        <p>Short vertical or horizontal farm video, up to 3 minutes and 80MB.</p>
+                        <input id="growVideoFile" type="file" accept="video/mp4,video/webm,video/quicktime">
+                    </div>
+                </div>
+            </div>
+
+            <div id="growUploadStatus" class="message" style="display:none;"></div>
+
+            <div class="grow-upload-actions">
+                <button id="growPublishBtn" class="primary-btn inline-action">Publish video</button>
+                <button class="secondary-btn inline-action" onclick="window.location.href='grow.html'">Cancel</button>
+            </div>
+        </section>
+
+        <div style="display:grid; gap:16px; align-content:start;">
+            <section class="grow-preview-card">
+                <h3>Preview</h3>
+                <p>Check both the video and the cover image before publishing.</p>
+                <div class="grow-preview-stage">
+                    <div id="growThumbnailPreview" class="grow-preview-image">Thumbnail preview will appear here.</div>
+                    <div id="growVideoPreview" class="grow-preview-video">Video preview will appear here.</div>
+                    <div id="growAttachedPreview" class="grow-listing-preview" style="display:none;"></div>
+                </div>
+            </section>
+
+            <section class="grow-upload-guidance">
+                <h3>Grow publishing standards</h3>
+                <ul>
+                    <li>Keep the content agriculture-only and practical.</li>
+                    <li>Do not attach a marketplace listing unless it matches the video.</li>
+                    <li>Unsafe or misleading farming content can be reported and hidden by admins.</li>
+                    <li>Use real thumbnails, real captions, and accurate location context.</li>
+                </ul>
+            </section>
+        </div>
+    </div>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button class="active" onclick="window.location.href='grow.html'">Grow</button>
+    <button onclick="window.location.href='chat.html'">Chat</button>
+    <button onclick="window.location.href='profile.html'">Profile</button>
+</div>
+
+<script type="module" src="grow-upload.js"></script>
+</body>
+</html>

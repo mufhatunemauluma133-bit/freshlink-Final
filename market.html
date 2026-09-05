@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdn.jsdelivr.net/npm; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: blob: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co https://nominatim.openstreetmap.org https://cdn.jsdelivr.net https://api.twelvedata.com https://finnhub.io; font-src 'self' data: https:; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self)">
+
+<title>Live Market Prices</title>
+<link rel="stylesheet" href="style.css">
+<style>
+    :root {
+        --terminal-surface: rgba(7, 14, 28, 0.92);
+        --terminal-line: rgba(148, 163, 184, 0.16);
+        --terminal-line-strong: rgba(148, 163, 184, 0.28);
+        --terminal-text: #e2e8f0;
+        --terminal-muted: #94a3b8;
+        --terminal-up: #22c55e;
+        --terminal-down: #f97316;
+        --terminal-glow-up: rgba(34, 197, 94, 0.38);
+        --terminal-glow-down: rgba(249, 115, 22, 0.36);
+    }
+
+    html[data-theme="light"] {
+        --terminal-surface: rgba(255, 255, 255, 0.94);
+        --terminal-line: rgba(15, 23, 42, 0.1);
+        --terminal-line-strong: rgba(15, 23, 42, 0.2);
+        --terminal-text: #0f172a;
+        --terminal-muted: #475569;
+        --terminal-up: #15803d;
+        --terminal-down: #c2410c;
+        --terminal-glow-up: rgba(21, 128, 61, 0.2);
+        --terminal-glow-down: rgba(194, 65, 12, 0.2);
+    }
+
+    .market-shell {
+        width: calc(100% - 32px);
+        margin: 16px auto;
+        padding: 16px;
+        border-radius: 24px;
+        border: 1px solid var(--terminal-line);
+        background:
+            radial-gradient(circle at 10% -10%, rgba(59, 130, 246, 0.22), transparent 38%),
+            radial-gradient(circle at 90% 110%, rgba(16, 185, 129, 0.2), transparent 42%),
+            var(--terminal-surface);
+        box-shadow: 0 24px 46px rgba(2, 6, 23, 0.35);
+        backdrop-filter: blur(14px);
+    }
+
+    .market-headline {
+        margin: 0;
+        font-size: 22px;
+        color: var(--terminal-text);
+        font-weight: 800;
+    }
+
+    .market-subtitle {
+        margin: 8px 0 0;
+        color: var(--terminal-muted);
+        font-size: 13px;
+        line-height: 1.45;
+    }
+
+    .market-toolbar {
+        margin-top: 14px;
+        display: grid;
+        gap: 12px;
+    }
+
+    .market-row {
+        display: grid;
+        grid-template-columns: 1fr auto auto;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .market-input,
+    .market-select {
+        border-radius: 14px;
+        border: 1px solid var(--terminal-line);
+        background: rgba(2, 6, 23, 0.56);
+        color: var(--terminal-text);
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+
+    html[data-theme="light"] .market-input,
+    html[data-theme="light"] .market-select {
+        background: rgba(248, 250, 252, 0.9);
+    }
+
+    .market-status-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .chip {
+        font-size: 11px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--terminal-line-strong);
+        color: var(--terminal-text);
+        background: rgba(148, 163, 184, 0.12);
+    }
+
+    .chip.live {
+        color: #bbf7d0;
+        background: rgba(34, 197, 94, 0.2);
+        border-color: rgba(34, 197, 94, 0.42);
+    }
+
+    .chip.delayed {
+        color: #fde68a;
+        background: rgba(234, 179, 8, 0.2);
+        border-color: rgba(234, 179, 8, 0.45);
+    }
+
+    .chip.closed {
+        color: #fecaca;
+        background: rgba(239, 68, 68, 0.18);
+        border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .symbol-suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .symbol-pill {
+        border: 1px solid var(--terminal-line);
+        background: rgba(15, 23, 42, 0.6);
+        color: var(--terminal-text);
+        border-radius: 999px;
+        padding: 7px 10px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+    html[data-theme="light"] .symbol-pill {
+        background: rgba(255, 255, 255, 0.88);
+    }
+
+    .market-grid {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .market-card {
+        border: 1px solid var(--terminal-line);
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.52);
+        padding: 12px;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+    }
+
+    html[data-theme="light"] .market-card {
+        background: rgba(255, 255, 255, 0.86);
+    }
+
+    .market-card-label {
+        font-size: 11px;
+        color: var(--terminal-muted);
+        margin-bottom: 6px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+    }
+
+    .market-card-value {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--terminal-text);
+    }
+
+    .market-card-small {
+        font-size: 13px;
+        color: var(--terminal-muted);
+        margin-top: 4px;
+    }
+
+    .value-up {
+        color: var(--terminal-up) !important;
+    }
+
+    .value-down {
+        color: var(--terminal-down) !important;
+    }
+
+    .pulse-up {
+        animation: pulseUp 620ms ease;
+    }
+
+    .pulse-down {
+        animation: pulseDown 620ms ease;
+    }
+
+    @keyframes pulseUp {
+        0% { box-shadow: 0 0 0 0 var(--terminal-glow-up); }
+        100% { box-shadow: 0 0 0 14px rgba(0,0,0,0); }
+    }
+
+    @keyframes pulseDown {
+        0% { box-shadow: 0 0 0 0 var(--terminal-glow-down); }
+        100% { box-shadow: 0 0 0 14px rgba(0,0,0,0); }
+    }
+
+    .range-bar {
+        margin-top: 12px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .range-btn {
+        border: 1px solid var(--terminal-line-strong);
+        background: rgba(15, 23, 42, 0.6);
+        color: var(--terminal-text);
+        border-radius: 12px;
+        padding: 8px 10px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 700;
+        margin: 0;
+        width: auto;
+    }
+
+    .range-btn.active {
+        border-color: rgba(16, 185, 129, 0.52);
+        color: #d1fae5;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.26), rgba(14, 116, 144, 0.22));
+    }
+
+    .chart-tilt {
+        margin-top: 12px;
+        position: relative;
+        border-radius: 20px;
+        border: 1px solid var(--terminal-line);
+        background: linear-gradient(180deg, rgba(2, 6, 23, 0.76), rgba(2, 6, 23, 0.9));
+        transform-style: preserve-3d;
+        transition: transform 180ms ease;
+        overflow: hidden;
+    }
+
+    .chart-tilt::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(130deg, rgba(255,255,255,0.09), transparent 36%);
+        pointer-events: none;
+    }
+
+    .chart-canvas {
+        width: 100%;
+        height: 330px;
+        display: block;
+    }
+
+    .chart-hover {
+        position: absolute;
+        pointer-events: none;
+        padding: 8px 10px;
+        border-radius: 10px;
+        font-size: 12px;
+        color: #e2e8f0;
+        background: rgba(2, 6, 23, 0.84);
+        border: 1px solid rgba(148, 163, 184, 0.26);
+        transform: translate(-50%, -110%);
+        display: none;
+    }
+
+    .terminal-meta {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 10px;
+        color: var(--terminal-muted);
+        font-size: 12px;
+    }
+
+    .vvip-panel {
+        margin-top: 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(251, 191, 36, 0.5);
+        background: linear-gradient(140deg, rgba(251, 191, 36, 0.2), rgba(249, 115, 22, 0.14));
+        color: #fef3c7;
+        padding: 12px;
+        display: none;
+    }
+
+    .vvip-panel strong {
+        display: block;
+        margin-bottom: 6px;
+    }
+
+    .market-empty {
+        margin-top: 14px;
+        border-radius: 16px;
+        border: 1px dashed var(--terminal-line-strong);
+        padding: 16px;
+        color: var(--terminal-muted);
+        text-align: center;
+    }
+
+    .market-error {
+        margin-top: 10px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(239, 68, 68, 0.18);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fecaca;
+        display: none;
+    }
+
+    .market-loading {
+        margin-top: 10px;
+        color: var(--terminal-muted);
+        font-size: 12px;
+        display: none;
+    }
+
+    @media (max-width: 960px) {
+        .market-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .market-row {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .market-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .chart-canvas {
+            height: 280px;
+        }
+    }
+</style>
+</head>
+<body>
+<script type="module" src="app.js"></script>
+
+<div class="page">
+    <div class="topbar">
+        <button onclick="window.location.href='home.html'">Back</button>
+        <div class="title">Live Market Prices</div>
+        <div style="width:30px;"></div>
+    </div>
+
+    <div class="market-shell">
+        <h1 class="market-headline">FreshLink Premium Produce Terminal</h1>
+        <p class="market-subtitle">Explore produce benchmarks with professional metrics and clear source labels. Live feeds appear when configured; otherwise FreshLink provides a useful reference estimate without requiring an API key.</p>
+
+        <div class="market-toolbar">
+            <div class="market-row">
+                <input id="symbolInput" class="market-input" placeholder="Search produce (banana, maize, tomato, orange) or enter a market symbol">
+                <select id="providerSelect" class="market-select" aria-label="Data provider">
+                    <option value="twelvedata">Twelve Data</option>
+                    <option value="finnhub">Finnhub</option>
+                </select>
+                <button id="loadBtn" class="primary-btn" style="width:auto; margin:0;">Load Market</button>
+            </div>
+
+            <div class="market-status-row">
+                <span id="dataTypeChip" class="chip">Data type pending</span>
+                <span id="marketStatusChip" class="chip">Market status unknown</span>
+                <span id="providerChip" class="chip">Provider: --</span>
+            </div>
+
+            <div class="symbol-suggestions" id="symbolSuggestions"></div>
+            <div id="errorBox" class="market-error"></div>
+            <div id="loadingBox" class="market-loading">Loading market feed...</div>
+        </div>
+
+        <div id="terminalView" style="display:none;">
+            <div class="market-grid">
+                <div class="market-card" style="grid-column: span 2;">
+                    <div class="market-card-label">SYMBOL</div>
+                    <div id="symbolTitle" class="market-card-value">--</div>
+                    <div id="symbolVenue" class="market-card-small">--</div>
+                </div>
+                <div class="market-card">
+                    <div class="market-card-label">CURRENT PRICE</div>
+                    <div id="currentPrice" class="market-card-value">--</div>
+                    <div id="priceCurrency" class="market-card-small">--</div>
+                </div>
+                <div class="market-card">
+                    <div class="market-card-label">CHANGE</div>
+                    <div id="changeValue" class="market-card-value">--</div>
+                    <div id="changePercent" class="market-card-small">--</div>
+                </div>
+                <div class="market-card">
+                    <div class="market-card-label">DAILY HIGH</div>
+                    <div id="highValue" class="market-card-value">--</div>
+                </div>
+                <div class="market-card">
+                    <div class="market-card-label">DAILY LOW</div>
+                    <div id="lowValue" class="market-card-value">--</div>
+                </div>
+                <div class="market-card">
+                    <div class="market-card-label">VOLUME</div>
+                    <div id="volumeValue" class="market-card-value">--</div>
+                </div>
+                <div class="market-card">
+                    <div class="market-card-label">OPEN</div>
+                    <div id="openValue" class="market-card-value">--</div>
+                </div>
+            </div>
+
+            <div class="range-bar" id="rangeBar">
+                <button class="range-btn active" data-range="1D">1D</button>
+                <button class="range-btn" data-range="1W">1W</button>
+                <button class="range-btn" data-range="1M">1M</button>
+                <button class="range-btn" data-range="6M">6M</button>
+                <button class="range-btn" data-range="1Y">1Y</button>
+                <button class="range-btn" data-range="5Y">5Y</button>
+            </div>
+
+            <div id="chartTilt" class="chart-tilt">
+                <canvas id="terminalChart" class="chart-canvas" width="1100" height="420"></canvas>
+                <div id="chartHover" class="chart-hover"></div>
+            </div>
+
+            <div class="terminal-meta">
+                <span id="timestampMeta">Latest update: --</span>
+                <span id="latencyMeta">Latency: --</span>
+                <span id="refreshMeta">Auto-refresh: --</span>
+            </div>
+
+            <div id="vvipPanel" class="vvip-panel">
+                <strong>VVIP Premium Terminal Mode Active</strong>
+                <span>Ultra-refresh stream, richer chart motion, and market-priority display are enabled for your account.</span>
+            </div>
+        </div>
+
+            <div id="emptyState" class="market-empty">Choose a produce item to view a live feed when configured, or a transparent FreshLink reference estimate when no API key is available.</div>
+    </div>
+</div>
+
+<div class="navbar">
+    <button onclick="window.location.href='home.html'">Home</button>
+    <button onclick="window.location.href='feed.html'">Feed</button>
+    <button onclick="window.location.href='jobs.html'">Jobs</button>
+    <button onclick="window.location.href='chat.html'">Chat</button>
+    <button onclick="window.location.href='settings.html'">Settings</button>
+</div>
+
+<script type="module" src="market.js"></script>
+</body>
+</html>
+
+
